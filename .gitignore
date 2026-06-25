@@ -1,0 +1,28 @@
+# Built outputs
+build/
+.gradle/
+*.apk
+*.aab
+*.aar
+
+# Local configuration (contains SDK path and secret API keys — NEVER commit)
+local.properties
+
+# Android Studio / IntelliJ
+.idea/
+*.iml
+*.iws
+*.ipr
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Kotlin
+.kotlin/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Gradle wrapper cache
+gradle/wrapper/gradle-wrapper.jar
