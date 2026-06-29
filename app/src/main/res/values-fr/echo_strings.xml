@@ -782,25 +782,7 @@ est irréversible.
     <string name="song_info_views_count">%s vues</string>
     <string name="song_info_likes_count">%s aime</string>
     <string name="song_info_no_description">Aucune description disponible</string>
-
-<!--    changelog-->
-    <string name="error_loading_changelog">Erreur lors du chargement du journal des modifications</string>
-    <string name="no_old_releases_with_changelog">Aucune ancienne version avec journal des modifications n\'a été trouvée</string>
-    <string name="failed_to_fetch_changelog">Impossible de récupérer le journal des modifications</string>
-    <string name="changelog_title">Journal des modifications</string>
-    <string name="loading_changelog">Chargement du journal des modifications…</string>
-    <string name="cached">En cache</string>
-    <string name="current">Actuel</string>
-    <string name="old_releases">Anciennes versions</string>
-    <string name="changelog_section">Journal des modifications</string>
-    <string name="version_code">Code de version</string>
-    <string name="namespace">Espace de noms</string>
-    <string name="telegram_channel">Telegram</string>
     <string name="join_telegram">Rejoignez notre chaîne Telegram</string>
-    <string name="commits_title">Engagements</string>
-    <string name="error_loading_commits">Impossible de charger les engagements car vous ne m\'avez pas payé.</string>
-    <string name="commits">Engagements</string>
-    <string name="view_commit_history">Consultez les modifications récentes sur la branche principale.</string>
 	<string name="suggestions">Suggestions</string>
     <string name="comments">Commentaires</string>
     <string name="no_comments">Aucun commentaire trouvé</string>

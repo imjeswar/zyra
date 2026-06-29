@@ -733,7 +733,7 @@
     <string name="crash_share_logs">Share Logs</string>
     <string name="copy_logs">Copy Logs</string>
     <string name="crash_share_title">Share crash report</string>
-    <string name="crash_report_subject">echomusic Crash Report</string>
+    <string name="crash_report_subject">Zyra Crash Report</string>
     <string name="crash_close">Close</string>
     <string name="crash_no_log">No crash log available</string>
 
@@ -785,7 +785,7 @@
     <string name="delete_from_history">Delete from history</string>
     <string name="re_listen">Re-listen</string>
     <string name="hold_to_recognize">Hold search icon to recognize music</string>
-    <string name="play_on_app">Play on Echo Music</string>
+    <string name="play_on_app">Play on Zyra</string>
     <string name="recognized_track">Recognized Track</string>
 
     <!-- CSV Import Strings -->
@@ -824,9 +824,9 @@
     <string name="discord_rpc_preview">Rich Presence Preview</string>
     <string name="discord_presence">Presence</string>
     <string name="discord_connect_description">Sign in with Discord to share what you\'re listening to</string>
-    <string name="discord_playing_echomusic">Playing echomusic</string>
-    <string name="discord_watching_echomusic">Watching echomusic</string>
-    <string name="discord_competing_echomusic">Competing in echomusic</string>
+    <string name="discord_playing_echomusic">Playing Zyra</string>
+    <string name="discord_watching_echomusic">Watching Zyra</string>
+    <string name="discord_competing_echomusic">Competing in Zyra</string>
     <string name="discord_activity_name">Activity name</string>
     <string name="discord_activity_name_description">Custom name for the activity (leave empty for default)</string>
     <string name="discord_advanced_mode">Advanced mode</string>
@@ -865,20 +865,6 @@
     <string name="song_info_likes_count">%s likes</string>
     <string name="song_info_no_description">No description available</string>
 
-<!--    changelog-->
-    <string name="error_loading_changelog">Error loading changelog</string>
-    <string name="no_old_releases_with_changelog">No old releases with changelog found</string>
-    <string name="failed_to_fetch_changelog">Failed to fetch changelog</string>
-    <string name="changelog_title">Changelog</string>
-    <string name="loading_changelog">Loading changelog…</string>
-    <string name="cached">Cached</string>
-    <string name="current">Current</string>
-    <string name="old_releases">Old Releases</string>
-    <string name="changelog_section">Changelog</string>
-    <string name="version_code">Version code</string>
-    <string name="namespace">Namespace</string>
-    <string name="telegram_channel">Telegram</string>
-
     <!-- Onboarding -->
     <string name="welcome_to">Welcome to</string>
     <string name="welcome_preparing_subtitle">Let\'s get everything ready for you.</string>
@@ -886,17 +872,17 @@
 
     <string name="perm_required">Required</string>
     <string name="perm_permissions">Permissions</string>
-    <string name="perm_intro_text">These permissions are required for echomusic to function correctly. Please grant them to proceed.</string>
+    <string name="perm_intro_text">These permissions are required for Zyra to function correctly. Please grant them to proceed.</string>
 
     <string name="perm_notif_title">Notifications</string>
     <string name="perm_notif_desc">Know immediately when your music is playing and control it from the notification bar.</string>
 
     <string name="perm_install_title">App Installation</string>
-    <string name="perm_install_desc">Required to download and install app updates seamlessly.</string>
+    <string name="perm_install_desc">Required to install files downloaded by the app.</string>
 
     <string name="feat_discover">Discover</string>
     <string name="feat_features">Features</string>
-    <string name="feat_intro">Explore everything echomusic has to offer for your music journey.</string>
+    <string name="feat_intro">Explore everything Zyra has to offer for your music journey.</string>
 
     <string name="feat_lyrics_title">Smart Lyrics</string>
     <string name="feat_lyrics_desc">Enjoy synchronized, word-by-word lyrics for millions of songs.</string>
@@ -907,8 +893,8 @@
     <string name="feat_quality_title">Premium Quality</string>
     <string name="feat_quality_desc">Stream and download.</string>
 
-    <string name="feat_update_title">Dynamic Updates</string>
-    <string name="feat_update_desc">Always stay updated with our built-in updater.</string>
+    <string name="feat_update_title">Always Fresh</string>
+    <string name="feat_update_desc">Stay up to date with the latest Zyra features.</string>
 
     <string name="feat_license_title">License</string>
     <string name="feat_license_desc">General Public License v3.0</string>
@@ -920,13 +906,9 @@
     <string name="welcome_update_status">Updated</string>
     <string name="welcome_update_intro">Ensuring you have the latest features and security improvements.</string>
     <string name="welcome_checking_updates">Checking for updates…</string>
-    <string name="welcome_up_to_date">echomusic is up to date!</string>
+    <string name="welcome_up_to_date">Zyra is up to date!</string>
     <string name="welcome_update_available">New version is available: %s</string>
     <string name="welcome_everything_ready">Everything is now up to date</string>
-    <string name="commits_title">Commits</string>
-    <string name="error_loading_commits">Failed to load commits</string>
-    <string name="commits">Commits</string>
-    <string name="view_commit_history">Browse recent changes on main branch</string>
     <string name="suggestions">Suggestions</string>
     <string name="comments">Comments</string>
     <string name="no_comments">No comments found</string>
@@ -1000,4 +982,5 @@
     <string name="lossless_audio_warning">Lossless audio requires a fast connection. It may consume more data and battery. Continue?</string>
     <string name="legacy_icon">Legacy Icon</string>
     <string name="legacy_icon_desc">Revert the app icon back to the original legacy design</string>
+    <string name="update_notifications">Update Notifications</string>
 </resources>

@@ -854,21 +854,6 @@
     <string name="song_info_views_count">%s بازدید</string>
     <string name="song_info_likes_count">%s لایک</string>
     <string name="song_info_no_description">توضیحاتی در دسترس نیست</string>
-
-<!--    changelog-->
-    <string name="error_loading_changelog">خطا در بارگذاری لیست تغییرات</string>
-    <string name="no_old_releases_with_changelog">هیچ نسخه قدیمی با لیست تغییرات یافت نشد</string>
-    <string name="failed_to_fetch_changelog">خطا در دریافت لیست تغییرات</string>
-    <string name="changelog_title">لیست تغییرات (Changelog)</string>
-    <string name="loading_changelog">در حال بارگذاری لیست تغییرات…</string>
-    <string name="cached">ذخیره‌شده (کِش)</string>
-    <string name="current">نسخه فعلی</string>
-    <string name="old_releases">نسخه‌های قدیمی</string>
-    <string name="changelog_section">لیست تغییرات</string>
-    <string name="version_code">کد نسخه</string>
-    <string name="namespace">فضای نام (Namespace)</string>
-    <string name="telegram_channel">تلگرام</string>
-
     <!-- Onboarding -->
     <string name="welcome_to">خوش آمدید به</string>
     <string name="welcome_preparing_subtitle">بیایید همه‌چیز را برای شما آماده کنیم.</string>
@@ -912,11 +897,6 @@
     <string name="welcome_checking_updates">در حال بررسی برای به‌روزرسانی‌ها…</string>
     <string name="welcome_up_to_date">برنامه echomusic به‌روز است!</string>
     <string name="welcome_update_available">نسخه جدید در دسترس است: %s</string>
-    <string name="welcome_everything_ready">اکنون همه‌چیز به‌روز است</string>
-    <string name="commits_title">کامیت‌ها (Commits)</string>
-    <string name="error_loading_commits">خطا در بارگذاری کامیت‌ها</string>
-    <string name="commits">کامیت‌ها</string>
-    <string name="view_commit_history">مرور تغییرات اخیر در شاخه اصلی (main)</string>
     <string name="suggestions">پیشنهادها</string>
     <string name="comments">دیدگاه‌ها</string>
     <string name="no_comments">هیچ دیدگاهی یافت نشد</string>

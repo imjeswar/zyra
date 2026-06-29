@@ -1,0 +1,12 @@
+
+
+package zyra.echo.music.constants
+
+enum class LibraryFilter {
+    SONGS,
+    ARTISTS,
+    ALBUMS,
+    PLAYLISTS,
+    LIBRARY,
+    LOCAL
+}

@@ -3,7 +3,7 @@
  * Licensed under GPL-3.0 | See git history for contributors
  *
  * JioSaavn audio streaming service.
- * Uses the Melo API (saavn.echomusic.fun) which is an open wrapper around JioSaavn.
+ * Uses the self-hosted JioSaavn backend wrapper.
  *
  * API endpoints used:
  *   - GET /api/search/songs?query={q}        → search songs by name+artist

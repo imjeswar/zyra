@@ -770,24 +770,6 @@
     <string name="song_info_views_count">%s görüntülenme</string>
     <string name="song_info_likes_count">%s beğeni</string>
     <string name="song_info_no_description">Açıklama bulunmuyor</string>
-
-<!--    changelog-->
-    <string name="error_loading_changelog">Değişiklik günlüğü yüklenirken hata oluştu</string>
-    <string name="no_old_releases_with_changelog">Değişiklik günlüğü olan eski bir sürüm bulunamadı</string>
-    <string name="failed_to_fetch_changelog">Değişiklik günlüğü alınamadı</string>
-    <string name="changelog_title">Değişiklik Günlüğü</string>
-    <string name="loading_changelog">Değişiklik günlüğü yükleniyor…</string>
-    <string name="cached">Önbelleğe alındı</string>
-    <string name="current">Geçerli</string>
-    <string name="old_releases">Eski Sürümler</string>
-    <string name="changelog_section">Değişiklik Günlüğü</string>
-    <string name="version_code">Sürüm kodu</string>
-    <string name="namespace">Ad alanı</string>
-    <string name="telegram_channel">Telegram</string>
     <string name="join_telegram">Telegram kanalımıza katılın</string>
-    <string name="commits_title">Commit\'ler</string>
-    <string name="error_loading_commits">Bana para ödemediğiniz için mi commit\'ler yüklenemedi ?</string>
-    <string name="commits">Commit\'ler</string>
-    <string name="view_commit_history">Ana daldaki son değişikliklere göz atın</string>
 
 </resources>

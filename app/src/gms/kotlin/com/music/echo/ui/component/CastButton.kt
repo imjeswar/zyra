@@ -1,6 +1,6 @@
 
 
-package iad1tya.echo.music.ui.component
+package zyra.echo.music.ui.component
 
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -34,10 +34,10 @@ import androidx.mediarouter.media.MediaRouteSelector
 import androidx.mediarouter.media.MediaRouter
 import com.google.android.gms.cast.CastMediaControlIntent
 import com.google.android.gms.cast.framework.CastContext
-import iad1tya.echo.music.LocalPlayerConnection
-import iad1tya.echo.music.R
-import iad1tya.echo.music.constants.EnableGoogleCastKey
-import iad1tya.echo.music.utils.rememberPreference
+import zyra.echo.music.LocalPlayerConnection
+import zyra.echo.music.R
+import zyra.echo.music.constants.EnableGoogleCastKey
+import zyra.echo.music.utils.rememberPreference
 import timber.log.Timber
 
 /**
