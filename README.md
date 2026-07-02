@@ -142,8 +142,7 @@ Download the latest pre-compiled APK from the [Releases Page](https://github.com
    ```
    *(For detailed paths on Windows/macOS/Linux, refer to [SETUP.md](SETUP.md))*
 
-3. **Firebase Configuration (Optional)**
-   Firebase is required for analytics and crash reporting. See the instructions in [SETUP.md](SETUP.md#3-configur 4. **Build the Application**
+3. **Build the Application**
    Zyra has two build variants: **FOSS** (without Google Play Services / Cast) and **GMS** (with Cast support).
    
    To build the FOSS Universal Debug variant:
