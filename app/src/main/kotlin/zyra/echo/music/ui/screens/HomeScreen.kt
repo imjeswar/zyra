@@ -82,7 +82,9 @@ import androidx.compose.ui.util.lerp
 import kotlin.math.abs
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import kotlinx.coroutines.CoroutineScope
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -1460,7 +1462,7 @@ fun HomeScreen(
                             }
                         }
                         HomeSection.KeepListening -> {
-                            keepListening?.takeIf { it.isNotEmpty() }?.let { keepListening ->
+                            keepListening?.takeIf { it.isNotEmpty() }?.let { keepListeningList ->
                                 item(key = "keep_listening_title") {
                                     NavigationTitle(
                                         title = stringResource(R.string.keep_listening),
@@ -1469,22 +1471,30 @@ fun HomeScreen(
                                 }
 
                                 item(key = "keep_listening_list") {
-                                    val rows = if (keepListening.size > 6) 2 else 1
+                                    val rows = if (keepListeningList.size > 4) 2 else 1
                                     LazyHorizontalGrid(
                                         state = rememberLazyGridState(),
                                         rows = GridCells.Fixed(rows),
-                                        contentPadding = WindowInsets.systemBars.only(WindowInsetsSides.Horizontal)
-                                            .asPaddingValues(),
+                                        contentPadding = PaddingValues(horizontal = 16.dp),
+                                        horizontalArrangement = Arrangement.spacedBy(14.dp),
+                                        verticalArrangement = Arrangement.spacedBy(14.dp),
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .height((currentGridHeight + with(LocalDensity.current) {
-                                                MaterialTheme.typography.bodyLarge.lineHeight.toDp() * 2 +
-                                                        MaterialTheme.typography.bodyMedium.lineHeight.toDp() * 2
-                                            }) * rows)
+                                            .height(if (rows > 1) 206.dp else 100.dp)
                                             .animateItem()
                                     ) {
-                                        items(keepListening, key = { it.id }) {
-                                            localGridItem(it)
+                                        items(keepListeningList, key = { it.id }) { item ->
+                                            GlassmorphismKeepListeningCard(
+                                                item = item,
+                                                isActive = item.id in listOf(mediaMetadata?.album?.id, mediaMetadata?.id),
+                                                isPlaying = isPlaying,
+                                                navController = navController,
+                                                playerConnection = playerConnection,
+                                                mediaMetadata = mediaMetadata,
+                                                menuState = menuState,
+                                                scope = scope,
+                                                haptic = haptic,
+                                            )
                                         }
                                     }
                                 }
@@ -1942,6 +1952,159 @@ fun HomeScreen(
                 }
             }
 
+        }
+    }
+}
+
+@Composable
+private fun GlassmorphismKeepListeningCard(
+    item: LocalItem,
+    isActive: Boolean,
+    isPlaying: Boolean,
+    navController: NavController,
+    playerConnection: PlayerConnection?,
+    mediaMetadata: MediaMetadata?,
+    menuState: MenuState,
+    scope: CoroutineScope,
+    haptic: HapticFeedback,
+    modifier: Modifier = Modifier,
+) {
+    val (title, subtitle, thumbnailUrl) = when (item) {
+        is Song -> Triple(item.title, item.artists.joinToString { it.name }, item.thumbnailUrl)
+        is Album -> Triple(item.title, item.artists.joinToString { it.name }, item.thumbnailUrl)
+        is Artist -> Triple(item.name, "Artist", item.thumbnailUrl)
+        is Playlist -> Triple(item.playlist.name, "${item.songCount} songs", null)
+    }
+
+    Card(
+        modifier = modifier
+            .width(260.dp)
+            .height(96.dp)
+            .border(
+                width = 1.dp,
+                brush = Brush.linearGradient(
+                    colors = listOf(
+                        Color.White.copy(alpha = 0.35f),
+                        Color.White.copy(alpha = 0.12f)
+                    )
+                ),
+                shape = RoundedCornerShape(22.dp)
+            )
+            .combinedClickable(
+                onClick = {
+                    when (item) {
+                        is Song -> {
+                            if (item.id == mediaMetadata?.id) {
+                                playerConnection?.togglePlayPause()
+                            } else {
+                                playerConnection?.playQueue(
+                                    YouTubeQueue.radio(item.toMediaMetadata()),
+                                )
+                            }
+                        }
+                        is Album -> navController.navigate("album/${item.id}")
+                        is Artist -> navController.navigate("artist/${item.id}")
+                        is Playlist -> {}
+                    }
+                },
+                onLongClick = {
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    menuState.show {
+                        when (item) {
+                            is Song -> SongMenu(
+                                originalSong = item,
+                                navController = navController,
+                                onDismiss = menuState::dismiss
+                            )
+                            is Album -> AlbumMenu(
+                                originalAlbum = item,
+                                navController = navController,
+                                onDismiss = menuState::dismiss
+                            )
+                            is Artist -> ArtistMenu(
+                                originalArtist = item,
+                                coroutineScope = scope,
+                                onDismiss = menuState::dismiss
+                            )
+                            is Playlist -> {}
+                        }
+                    }
+                }
+            ),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White.copy(alpha = 0.12f)
+        ),
+        shape = RoundedCornerShape(22.dp),
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 12.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 10.dp),
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    color = Color.White,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+                if (subtitle.isNotBlank()) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = subtitle,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.White.copy(alpha = 0.7f),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+
+            Box(
+                modifier = Modifier
+                    .size(72.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(Color.White.copy(alpha = 0.08f)),
+                contentAlignment = Alignment.Center
+            ) {
+                if (!thumbnailUrl.isNullOrBlank()) {
+                    AsyncImage(
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(thumbnailUrl)
+                            .crossfade(true)
+                            .build(),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+
+                Surface(
+                    modifier = Modifier.size(32.dp),
+                    shape = CircleShape,
+                    color = Color.White.copy(alpha = 0.85f),
+                    contentColor = Color.Black
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            painter = painterResource(
+                                if (isActive && isPlaying) R.drawable.pause else R.drawable.play
+                            ),
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp),
+                            tint = Color.Black
+                        )
+                    }
+                }
+            }
         }
     }
 }
