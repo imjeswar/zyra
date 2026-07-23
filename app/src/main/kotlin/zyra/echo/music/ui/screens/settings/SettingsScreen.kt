@@ -9,6 +9,11 @@ import android.os.Build
 import android.provider.Settings
 import android.widget.Toast
 import android.net.Uri
+import androidx.compose.foundation.border
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsetsSides
@@ -36,6 +41,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.width
 import androidx.compose.ui.Alignment
 
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
+import zyra.echo.music.utils.AppUpdater
+
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
@@ -62,6 +71,7 @@ fun SettingsScreen(
 highlightKey: String? = null) {
     val uriHandler = LocalUriHandler.current
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
     val isAndroid12OrLater = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
 
     var searchQuery by rememberSaveable { mutableStateOf("") }
@@ -71,6 +81,8 @@ highlightKey: String? = null) {
     val appearanceText = stringResource(R.string.appearance)
     val playerText = stringResource(R.string.player_and_audio)
     val listenTogetherText = stringResource(R.string.listen_together)
+    val historyText = stringResource(R.string.history)
+    val statsText = stringResource(R.string.stats)
     val contentText = stringResource(R.string.content)
     val privacyText = stringResource(R.string.privacy)
     val storageText = stringResource(R.string.storage)
@@ -100,14 +112,15 @@ highlightKey: String? = null) {
             modifier = Modifier.padding(start = 8.dp, top = 24.dp, bottom = 16.dp)
         )
 
-        OutlinedTextField(
+        TextField(
             value = searchQuery,
             onValueChange = { searchQuery = it },
-            placeholder = { Text(stringResource(R.string.search)) },
+            placeholder = { Text(stringResource(R.string.search), color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)) },
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Rounded.Search,
-                    contentDescription = stringResource(R.string.search)
+                    contentDescription = stringResource(R.string.search),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             },
             trailingIcon = {
@@ -115,15 +128,25 @@ highlightKey: String? = null) {
                     IconButton(onClick = { searchQuery = "" }) {
                         Icon(
                             imageVector = Icons.Rounded.Clear,
-                            contentDescription = "Clear"
+                            contentDescription = "Clear",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
             },
+            singleLine = true,
             shape = RoundedCornerShape(24.dp),
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.White.copy(alpha = 0.10f),
+                unfocusedContainerColor = Color.White.copy(alpha = 0.06f),
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor = Color.Transparent
+            ),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 8.dp, end = 8.dp, bottom = 16.dp)
+                .border(1.dp, Color.White.copy(alpha = 0.18f), RoundedCornerShape(24.dp))
         )
 
         val itemsList = buildList {
@@ -134,6 +157,26 @@ highlightKey: String? = null) {
                         icon = rememberVectorPainter(Icons.Outlined.AutoAwesome),
                         title = { Text("Zyra Brain") },
                         onClick = { navController.navigate("settings/echo_brain") }
+                    )
+                )
+            }
+            if (historyText.lowercase().contains(searchLower) || "watch history".contains(searchLower)) {
+                add(
+                    Material3SettingsItem(
+                        isHighlighted = (highlightKey == historyText),
+                        icon = painterResource(R.drawable.music_history),
+                        title = { Text(historyText) },
+                        onClick = { navController.navigate("history") }
+                    )
+                )
+            }
+            if (statsText.lowercase().contains(searchLower)) {
+                add(
+                    Material3SettingsItem(
+                        isHighlighted = (highlightKey == statsText),
+                        icon = painterResource(R.drawable.stats),
+                        title = { Text(statsText) },
+                        onClick = { navController.navigate("stats") }
                     )
                 )
             }
@@ -205,6 +248,27 @@ highlightKey: String? = null) {
                         icon = painterResource(R.drawable.restore),
                         title = { Text(backupText) },
                         onClick = { navController.navigate("settings/backup_restore") }
+                    )
+                )
+            }
+            if ("check for updates".contains(searchLower) || "update".contains(searchLower)) {
+                add(
+                    Material3SettingsItem(
+                        icon = painterResource(R.drawable.restore),
+                        title = { Text(stringResource(R.string.checking_for_updates)) },
+                        description = { Text("App version: v${BuildConfig.VERSION_NAME}") },
+                        onClick = {
+                            coroutineScope.launch {
+                                Toast.makeText(context, R.string.checking_for_updates, Toast.LENGTH_SHORT).show()
+                                AppUpdater.checkForUpdate().onSuccess { release ->
+                                    if (release == null) {
+                                        Toast.makeText(context, R.string.latest_version_installed, Toast.LENGTH_SHORT).show()
+                                    }
+                                }.onFailure {
+                                    Toast.makeText(context, "Failed to check for updates", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        }
                     )
                 )
             }

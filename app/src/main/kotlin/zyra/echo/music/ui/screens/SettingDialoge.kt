@@ -1,6 +1,8 @@
 package zyra.echo.music.ui.screens
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -34,6 +36,9 @@ import zyra.echo.music.utils.rememberPreference
 import zyra.echo.music.viewmodels.HomeViewModel
 import androidx.compose.ui.layout.ContentScale
 
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.stringResource
+
 @Composable
 fun SettingDialoge(
     onDismissRequest: () -> Unit,
@@ -53,10 +58,11 @@ fun SettingDialoge(
         Card(
             modifier = Modifier
                 .padding(24.dp)
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .border(1.dp, Color.White.copy(alpha = 0.16f), RoundedCornerShape(28.dp)),
             shape = RoundedCornerShape(28.dp),
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+                containerColor = Color(0xFF161420).copy(alpha = 0.92f)
             ),
             elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
         ) {
@@ -75,15 +81,27 @@ fun SettingDialoge(
                 ) {
                     Spacer(modifier = Modifier.size(24.dp))
                     
-                    Text(
-                        text = "Zyra",
-                        style = MaterialTheme.typography.titleLarge.copy(
-                            fontWeight = FontWeight.Bold,
-                            letterSpacing = 1.sp
-                        ),
-                        color = primaryColor,
-                        textAlign = TextAlign.Center
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        AsyncImage(
+                            model = R.mipmap.ic_launcher_round,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(28.dp)
+                                .clip(CircleShape)
+                        )
+                        Text(
+                            text = "Zyra",
+                            style = MaterialTheme.typography.titleLarge.copy(
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 1.sp
+                            ),
+                            color = primaryColor,
+                            textAlign = TextAlign.Center
+                        )
+                    }
 
                     IconButton(
                         onClick = onDismissRequest,
@@ -105,9 +123,28 @@ fun SettingDialoge(
                     compact = true,
                     items = listOf(
                         Material3SettingsItem(
-                            title = { Text("Settings") },
+                            title = { Text(stringResource(R.string.history)) },
+                            icon = painterResource(R.drawable.music_history),
+                            onClick = {
+                                onDismissRequest()
+                                onNavigate("history")
+                            }
+                        ),
+                        Material3SettingsItem(
+                            title = { Text(stringResource(R.string.stats)) },
+                            icon = painterResource(R.drawable.stats),
+                            onClick = {
+                                onDismissRequest()
+                                onNavigate("stats")
+                            }
+                        ),
+                        Material3SettingsItem(
+                            title = { Text(stringResource(R.string.settings)) },
                             icon = painterResource(R.drawable.settings),
-                            onClick = { onNavigate("settings") }
+                            onClick = {
+                                onDismissRequest()
+                                onNavigate("settings")
+                            }
                         )
                     )
                 )

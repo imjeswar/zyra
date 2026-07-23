@@ -6,6 +6,11 @@ import zyra.echo.music.BuildConfig
 import zyra.echo.music.ui.screens.settings.RingtoneViewModel
 import zyra.echo.music.ui.component.RingtoneTrimmerDialog
 import zyra.echo.music.ui.component.RingtoneProgressDialog
+import zyra.echo.music.ui.component.UpdateAvailableDialog
+import zyra.echo.music.utils.AppUpdater
+import zyra.echo.music.utils.ReleaseInfo
+import androidx.compose.runtime.mutableIntStateOf
+import android.widget.Toast
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.CompositionLocalProvider
@@ -35,9 +40,11 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import coil3.compose.AsyncImage
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -428,7 +435,7 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        val darkTheme by rememberEnumPreference(DarkModeKey, defaultValue = DarkMode.AUTO)
+        val darkTheme by rememberEnumPreference(DarkModeKey, defaultValue = DarkMode.ON)
         val isSystemInDarkTheme = isSystemInDarkTheme()
         val useDarkTheme = remember(darkTheme, isSystemInDarkTheme) {
             if (darkTheme == DarkMode.AUTO) isSystemInDarkTheme else darkTheme == DarkMode.ON
@@ -438,7 +445,7 @@ class MainActivity : ComponentActivity() {
             setSystemBarAppearance(useDarkTheme)
         }
 
-        val pureBlackEnabled by rememberPreference(PureBlackKey, defaultValue = false)
+        val pureBlackEnabled by rememberPreference(PureBlackKey, defaultValue = true)
         val pureBlack = remember(pureBlackEnabled, useDarkTheme) {
             pureBlackEnabled && useDarkTheme
         }
@@ -507,13 +514,46 @@ class MainActivity : ComponentActivity() {
                 val bottomInset = with(density) { windowsInsets.getBottom(density).toDp() }
                 val bottomInsetDp = WindowInsets.systemBars.asPaddingValues().calculateBottomPadding()
 
+                var releaseInfoState by remember { mutableStateOf<ReleaseInfo?>(null) }
+                var showUpdateDialog by remember { mutableStateOf(false) }
+                var isDownloadingUpdate by remember { mutableStateOf(false) }
+                var updateDownloadProgress by remember { mutableIntStateOf(0) }
+
+                LaunchedEffect(Unit) {
+                    AppUpdater.checkForUpdate().onSuccess { info ->
+                        if (info != null) {
+                            releaseInfoState = info
+                            showUpdateDialog = true
+                        }
+                    }
+                }
+
+                UpdateAvailableDialog(
+                    isVisible = showUpdateDialog,
+                    releaseInfo = releaseInfoState,
+                    isDownloading = isDownloadingUpdate,
+                    downloadProgress = updateDownloadProgress,
+                    onDismiss = { showUpdateDialog = false },
+                    onUpdateConfirm = { url ->
+                        lifecycleScope.launch {
+                            isDownloadingUpdate = true
+                            AppUpdater.downloadAndInstallApk(this@MainActivity, url) { progress ->
+                                updateDownloadProgress = progress
+                            }.onFailure { err ->
+                                isDownloadingUpdate = false
+                                Toast.makeText(this@MainActivity, "Download failed: ${err.message}", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+                )
+
                 val navController = rememberNavController()
                 val homeViewModel: HomeViewModel = hiltViewModel()
                 val accountImageUrl by homeViewModel.accountImageUrl.collectAsState()
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val (previousTab, setPreviousTab) = rememberSaveable { mutableStateOf("home") }
 
-                val (listenTogetherInTopBar) = rememberPreference(ListenTogetherInTopBarKey, defaultValue = true)
+                val (listenTogetherInTopBar) = rememberPreference(ListenTogetherInTopBarKey, defaultValue = false)
                 val navigationItems = remember(listenTogetherInTopBar) { 
                     if (listenTogetherInTopBar) {
                         Screens.MainScreens.filter { it != Screens.ListenTogether }
@@ -820,58 +860,50 @@ class MainActivity : ComponentActivity() {
                             ) {
                                 Row {
                                     TopAppBar(
-                                        title = {
-                                            Text(
-                                                text = currentTitle,
-                                                style = MaterialTheme.typography.titleLarge.copy(
-                                                    fontWeight = FontWeight.Bold,
-                                                    fontSize = 24.sp
-                                                ),
-                                            )
-                                        },
-                                        actions = {
-                                            if (showHistoryButton) {
-                                                IconButton(onClick = { navController.navigate("history") }) {
-                                                    Icon(
-                                                        painter = painterResource(R.drawable.music_history),
-                                                        contentDescription = stringResource(R.string.history)
-                                                    )
-                                                }
-                                            }
-                                            IconButton(onClick = { navController.navigate("stats") }) {
-                                                Icon(
-                                                    painter = painterResource(R.drawable.stats),
-                                                    contentDescription = stringResource(R.string.stats)
-                                                )
-                                            }
-                                            if (listenTogetherInTopBar) {
-                                                IconButton(onClick = { navController.navigate("listen_together_from_topbar") }) {
-                                                    Icon(
-                                                        painter = painterResource(R.drawable.group_outlined),
-                                                        contentDescription = stringResource(R.string.together)
-                                                    )
-                                                }
-                                            }
+                                         title = {
+                                             Row(
+                                                 verticalAlignment = Alignment.CenterVertically,
+                                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                             ) {
+                                                 if (currentTitle == "Zyra") {
+                                                     AsyncImage(
+                                                         model = R.mipmap.ic_launcher_round,
+                                                         contentDescription = null,
+                                                         modifier = Modifier
+                                                             .size(28.dp)
+                                                             .clip(CircleShape)
+                                                     )
+                                                 }
+                                                 Text(
+                                                     text = currentTitle,
+                                                     style = MaterialTheme.typography.titleLarge.copy(
+                                                         fontWeight = FontWeight.Bold,
+                                                         fontSize = 24.sp
+                                                     ),
+                                                 )
+                                             }
+                                         },
+                                         actions = {
                                              IconButton(onClick = { showSettingDialoge = true }) {
-                                                BadgedBox(badge = {}) {
-                                                    if (accountImageUrl != null) {
-                                                        AsyncImage(
-                                                            model = accountImageUrl,
-                                                            contentDescription = stringResource(R.string.account),
-                                                            modifier = Modifier
-                                                                .size(24.dp)
-                                                                .clip(CircleShape)
-                                                        )
-                                                     } else {
-                                                         Icon(
-                                                             painter = painterResource(R.drawable.settings),
+                                                 BadgedBox(badge = {}) {
+                                                     if (accountImageUrl != null) {
+                                                         AsyncImage(
+                                                             model = accountImageUrl,
                                                              contentDescription = stringResource(R.string.account),
-                                                             modifier = Modifier.size(24.dp)
+                                                             modifier = Modifier
+                                                                 .size(24.dp)
+                                                                 .clip(CircleShape)
                                                          )
-                                                     }
-                                                }
-                                            }
-                                        },
+                                                      } else {
+                                                          Icon(
+                                                              painter = painterResource(R.drawable.settings),
+                                                              contentDescription = stringResource(R.string.account),
+                                                              modifier = Modifier.size(24.dp)
+                                                          )
+                                                      }
+                                                 }
+                                             }
+                                         },
                                         scrollBehavior = topAppBarScrollBehavior,
                                         colors = TopAppBarDefaults.topAppBarColors(
                                             containerColor = if (pureBlack) Color.Black else MaterialTheme.colorScheme.surfaceContainer,

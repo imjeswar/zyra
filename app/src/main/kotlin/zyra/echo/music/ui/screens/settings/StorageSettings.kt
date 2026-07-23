@@ -63,8 +63,13 @@ import kotlinx.coroutines.launch
 import okio.ByteString.Companion.encodeUtf8
 import kotlin.math.roundToInt
 import android.content.Intent
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
+import zyra.echo.music.LocalDownloadUtil
+import zyra.echo.music.constants.AutoDownloadOnLikeKey
 import zyra.echo.music.constants.ExportDirectoryUriKey
 
 @OptIn(ExperimentalCoilApi::class, ExperimentalMaterial3Api::class, DelicateCoilApi::class)
@@ -78,6 +83,7 @@ highlightKey: String? = null) {
 
     val context = LocalContext.current
     val database = LocalDatabase.current
+    val downloadUtil = LocalDownloadUtil.current
     val imageDiskCache = context.imageLoader.diskCache ?: return
     val playerCache = LocalPlayerConnection.current?.service?.playerCache ?: return
     val downloadCache = LocalPlayerConnection.current?.service?.downloadCache ?: return
@@ -85,6 +91,10 @@ highlightKey: String? = null) {
     val coroutineScope = rememberCoroutineScope()
     val songCacheString = stringResource(R.string.song_cache).lowercase()
     val imageCacheString = stringResource(R.string.image_cache).lowercase()
+    val (autoDownloadOnLike, onAutoDownloadOnLikeChange) = rememberPreference(
+        key = AutoDownloadOnLikeKey,
+        defaultValue = false
+    )
     val (maxImageCacheSize, onMaxImageCacheSizeChange) = rememberPreference(
         key = MaxImageCacheSizeKey,
         defaultValue = 512
@@ -346,6 +356,42 @@ highlightKey: String? = null) {
                         )
                     },
                     onClick = { exportDirectoryLauncher.launch(null) }
+                )
+            )
+        )
+
+        Material3SettingsGroup(
+            scrollState = scrollState,
+            title = "Smart Downloads",
+            items = listOf(
+                Material3SettingsItem(
+                    isHighlighted = (highlightKey == "Auto-download liked songs"),
+                    icon = painterResource(R.drawable.favorite),
+                    title = { Text("Auto-download liked songs") },
+                    description = { Text("Automatically download songs when you like them") },
+                    trailingContent = {
+                        Switch(
+                            checked = autoDownloadOnLike,
+                            onCheckedChange = onAutoDownloadOnLikeChange,
+                            colors = SwitchDefaults.colors(
+                                checkedThumbColor = MaterialTheme.colorScheme.primary,
+                                checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
+                                uncheckedThumbColor = MaterialTheme.colorScheme.outline,
+                                uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant
+                            )
+                        )
+                    },
+                    onClick = { onAutoDownloadOnLikeChange(!autoDownloadOnLike) }
+                ),
+                Material3SettingsItem(
+                    isHighlighted = (highlightKey == "Auto-download top 20 songs"),
+                    icon = painterResource(R.drawable.download),
+                    title = { Text("Auto-download top 20 played songs") },
+                    description = { Text("Download your top 20 most listened songs for offline listening") },
+                    onClick = {
+                        downloadUtil.downloadTopPlayedSongs(context, 20)
+                        Toast.makeText(context, "Auto-downloading top 20 played songs...", Toast.LENGTH_SHORT).show()
+                    }
                 )
             )
         )

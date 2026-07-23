@@ -358,20 +358,6 @@ highlightKey: String? = null) {
                         } else null
                     ),
                     IntegrationCardItem(
-                        icon = painterResource(R.drawable.cloud),
-                        title = { Text(stringResource(R.string.listen_together_server_url)) },
-                        description = {
-                            Text(
-                                selectedServer?.let { server ->
-                                    "${server.name} - ${server.location}"
-                                } ?: serverUrl,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        },
-                        onClick = { showServerUrlDialog = true }
-                    ),
-                    IntegrationCardItem(
                         icon = painterResource(R.drawable.person),
                         title = { Text(stringResource(R.string.listen_together_username)) },
                         description = {
@@ -454,14 +440,6 @@ highlightKey: String? = null) {
                             )
                         },
                         onClick = { smartResync = !smartResync }
-                    ),
-                    IntegrationCardItem(
-                        icon = painterResource(R.drawable.bug_report),
-                        title = { Text(stringResource(R.string.listen_together_view_logs)) },
-                        description = {
-                            Text(stringResource(R.string.listen_together_view_logs_desc))
-                        },
-                        onClick = { showLogsDialog = true }
                     )
                 )
             )

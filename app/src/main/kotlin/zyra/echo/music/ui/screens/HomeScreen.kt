@@ -76,6 +76,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.border
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.util.lerp
+import kotlin.math.abs
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -188,6 +192,56 @@ sealed class HomeSection(val id: String, val baseWeight: Int) {
     data object MoodAndGenres : HomeSection("mood_and_genres", 5)
 }
 
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun <T> CoverFlow3DCarousel(
+    items: List<T>,
+    modifier: Modifier = Modifier,
+    key: ((T) -> Any)? = null,
+    itemContent: @Composable (item: T, isSelected: Boolean) -> Unit
+) {
+    if (items.isEmpty()) return
+    val pagerState = rememberPagerState(pageCount = { items.size })
+
+    HorizontalPager(
+        state = pagerState,
+        contentPadding = PaddingValues(horizontal = 64.dp),
+        pageSpacing = (-16).dp,
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 12.dp)
+    ) { page ->
+        val pageOffset = (pagerState.currentPage - page) + pagerState.currentPageOffsetFraction
+        val absOffset = abs(pageOffset)
+
+        val scale = lerp(
+            start = 0.82f,
+            stop = 1.0f,
+            fraction = 1f - absOffset.coerceIn(0f, 1f)
+        )
+        val rotationY = (pageOffset * -25f).coerceIn(-35f, 35f)
+        val alpha = lerp(
+            start = 0.65f,
+            stop = 1.0f,
+            fraction = 1f - absOffset.coerceIn(0f, 1f)
+        )
+
+        Box(
+            modifier = Modifier
+                .graphicsLayer {
+                    this.scaleX = scale
+                    this.scaleY = scale
+                    this.rotationY = rotationY
+                    this.alpha = alpha
+                    this.cameraDistance = 14 * density
+                },
+            contentAlignment = Alignment.Center
+        ) {
+            itemContent(items[page], absOffset < 0.3f)
+        }
+    }
+}
+
 @Composable
 fun CommunityPlaylistCard(
     item: CommunityPlaylistItem,
@@ -200,23 +254,18 @@ fun CommunityPlaylistCard(
     val scope = rememberCoroutineScope()
     val isDark = isSystemInDarkTheme()
 
-    val containerColor = if (isDark) {
-        MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp)
-    } else {
-        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-    }
-
     val dbPlaylist by database.playlistByBrowseId(item.playlist.id).collectAsState(initial = null)
     val isBookmarked = dbPlaylist?.playlist?.bookmarkedAt != null
 
     Card(
         modifier = modifier
-            .width(320.dp)
-            .height(420.dp),
+            .width(260.dp)
+            .height(360.dp)
+            .border(1.5.dp, Color.White.copy(alpha = 0.25f), RoundedCornerShape(26.dp)),
         colors = CardDefaults.cardColors(
-            containerColor = containerColor
+            containerColor = Color.White.copy(alpha = 0.12f)
         ),
-        shape = RoundedCornerShape(28.dp),
+        shape = RoundedCornerShape(26.dp),
         onClick = onClick
     ) {
         Column(
@@ -1162,114 +1211,97 @@ fun HomeScreen(
 
                                 item(key = "quick_picks_list") {
                                     val distinctQuickPicks = quickPicks.distinctBy { it.id }
-                                    HorizontalCenteredHeroCarousel(
-                                        state = rememberCarouselState { distinctQuickPicks.size },
-                                        maxItemWidth = 250.dp,
-                                        itemSpacing = 8.dp,
-                                        contentPadding = PaddingValues(horizontal = 16.dp),
+                                    CoverFlow3DCarousel(
+                                        items = distinctQuickPicks,
+                                        key = { it.id },
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .height(290.dp)
+                                            .height(310.dp)
                                             .animateItem()
-                                    ) { index ->
-                                        val originalSong = distinctQuickPicks[index]
+                                    ) { originalSong, isSelected ->
                                         val song by database.song(originalSong.id)
                                             .collectAsState(initial = originalSong)
                                         val isActive = song!!.id == mediaMetadata?.id
 
-                                        Box(
+                                        Card(
                                             modifier = Modifier
-                                                .fillMaxSize()
-                                                .maskClip(MaterialTheme.shapes.extraLarge)
-                                                .maskBorder(
-                                                    BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-                                                    MaterialTheme.shapes.extraLarge
-                                                )
-                                                .focusable()
-                                                .combinedClickable(
-                                                    onClick = {
-                                                        if (isActive) {
-                                                            playerConnection.togglePlayPause()
-                                                        } else {
-                                                            playerConnection.playQueue(YouTubeQueue.radio(song!!.toMediaMetadata()))
-                                                        }
-                                                    },
-                                                    onLongClick = {
-                                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                                        menuState.show {
-                                                            SongMenu(
-                                                                originalSong = song!!,
-                                                                navController = navController,
-                                                                onDismiss = menuState::dismiss
+                                                .width(230.dp)
+                                                .height(290.dp)
+                                                .border(1.5.dp, Color.White.copy(alpha = 0.25f), RoundedCornerShape(24.dp)),
+                                            colors = CardDefaults.cardColors(
+                                                containerColor = Color.White.copy(alpha = 0.12f)
+                                            ),
+                                            shape = RoundedCornerShape(24.dp),
+                                            onClick = {
+                                                if (isActive) {
+                                                    playerConnection.togglePlayPause()
+                                                } else {
+                                                    playerConnection.playQueue(YouTubeQueue.radio(song!!.toMediaMetadata()))
+                                                }
+                                            }
+                                        ) {
+                                            Column(
+                                                modifier = Modifier.fillMaxSize()
+                                            ) {
+                                                Box(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .weight(1f)
+                                                        .padding(8.dp)
+                                                        .clip(RoundedCornerShape(18.dp))
+                                                ) {
+                                                    AsyncImage(
+                                                        model = coil3.request.ImageRequest.Builder(LocalContext.current)
+                                                            .data(song!!.thumbnailUrl)
+                                                            .crossfade(true)
+                                                            .build(),
+                                                        contentDescription = null,
+                                                        contentScale = ContentScale.Crop,
+                                                        modifier = Modifier.fillMaxSize()
+                                                    )
+
+                                                    if (isActive && isPlaying) {
+                                                        Box(
+                                                            modifier = Modifier
+                                                                .align(Alignment.TopEnd)
+                                                                .padding(8.dp)
+                                                                .size(32.dp)
+                                                                .background(
+                                                                    MaterialTheme.colorScheme.primary,
+                                                                    CircleShape
+                                                                ),
+                                                            contentAlignment = Alignment.Center
+                                                        ) {
+                                                            Icon(
+                                                                painter = painterResource(R.drawable.volume_up),
+                                                                contentDescription = null,
+                                                                tint = MaterialTheme.colorScheme.onPrimary,
+                                                                modifier = Modifier.size(18.dp)
                                                             )
                                                         }
                                                     }
-                                                )
-                                        ) {
-                                            AsyncImage(
-                                                model = coil3.request.ImageRequest.Builder(LocalContext.current)
-                                                    .data(song!!.thumbnailUrl)
-                                                    .crossfade(true)
-                                                    .build(),
-                                                contentDescription = null,
-                                                contentScale = ContentScale.Crop,
-                                                modifier = Modifier.fillMaxSize()
-                                            )
+                                                }
 
-                                            Box(
-                                                modifier = Modifier
-                                                    .fillMaxSize()
-                                                    .background(
-                                                        Brush.verticalGradient(
-                                                            colors = listOf(
-                                                                Color.Transparent,
-                                                                Color.Transparent,
-                                                                Color.Black.copy(alpha = 0.7f)
-                                                            )
-                                                        )
-                                                    )
-                                            )
-
-                                            if (isActive && isPlaying) {
-                                                Box(
+                                                Column(
                                                     modifier = Modifier
-                                                        .align(Alignment.TopEnd)
-                                                        .padding(12.dp)
-                                                        .size(32.dp)
-                                                        .background(
-                                                            MaterialTheme.colorScheme.primary,
-                                                            CircleShape
-                                                        ),
-                                                    contentAlignment = Alignment.Center
+                                                        .fillMaxWidth()
+                                                        .padding(horizontal = 14.dp, vertical = 10.dp)
                                                 ) {
-                                                    Icon(
-                                                        painter = painterResource(R.drawable.volume_up),
-                                                        contentDescription = null,
-                                                        tint = MaterialTheme.colorScheme.onPrimary,
-                                                        modifier = Modifier.size(18.dp)
+                                                    Text(
+                                                        text = song!!.title,
+                                                        style = MaterialTheme.typography.titleMedium,
+                                                        color = Color.White,
+                                                        maxLines = 1,
+                                                        overflow = TextOverflow.Ellipsis
+                                                    )
+                                                    Text(
+                                                        text = song!!.artists.joinToString { it.name },
+                                                        style = MaterialTheme.typography.bodyMedium,
+                                                        color = Color.White.copy(alpha = 0.7f),
+                                                        maxLines = 1,
+                                                        overflow = TextOverflow.Ellipsis
                                                     )
                                                 }
-                                            }
-
-                                            Column(
-                                                modifier = Modifier
-                                                    .align(Alignment.BottomStart)
-                                                    .padding(16.dp)
-                                            ) {
-                                                Text(
-                                                    text = song!!.title,
-                                                    style = MaterialTheme.typography.titleMedium,
-                                                    color = Color.White,
-                                                    maxLines = 1,
-                                                    overflow = TextOverflow.Ellipsis
-                                                )
-                                                Text(
-                                                    text = song!!.artists.joinToString { it.name },
-                                                    style = MaterialTheme.typography.bodyMedium,
-                                                    color = Color.White.copy(alpha = 0.7f),
-                                                    maxLines = 1,
-                                                    overflow = TextOverflow.Ellipsis
-                                                )
                                             }
                                         }
                                     }
@@ -1286,51 +1318,48 @@ fun HomeScreen(
                                 }
 
                                 item(key = "echo_brain_playlists_content") {
-                                    LazyRow(
-                                        contentPadding = PaddingValues(horizontal = 16.dp),
-                                        horizontalArrangement = Arrangement.spacedBy(16.dp),
-                                        modifier = Modifier.animateItem()
-                                    ) {
-                                        items(playlists, key = { it.playlist.id }) { item ->
-                                            CommunityPlaylistCard(
-                                                item = item,
-                                                onClick = {
-                                                    if (item.playlist.id == "echo_brain_mix_local") {
-                                                        playerConnection.playQueue(
-                                                            ListQueue(
-                                                                title = item.playlist.title,
-                                                                items = item.songs.map { it.toMediaMetadata().toMediaItem() }
-                                                            )
+                                    CoverFlow3DCarousel(
+                                        items = playlists,
+                                        key = { it.playlist.id }
+                                    ) { item, isSelected ->
+                                        CommunityPlaylistCard(
+                                            item = item,
+                                            onClick = {
+                                                if (item.playlist.id == "echo_brain_mix_local") {
+                                                    playerConnection.playQueue(
+                                                        ListQueue(
+                                                            title = item.playlist.title,
+                                                            items = item.songs.map { it.toMediaMetadata().toMediaItem() }
                                                         )
-                                                    } else {
-                                                        playerConnection.playQueue(
-                                                            YouTubeQueue(
-                                                                WatchEndpoint(videoId = item.playlist.id.removePrefix("RDAMVM"), playlistId = item.playlist.id)
-                                                            )
+                                                    )
+                                                } else {
+                                                    playerConnection.playQueue(
+                                                        YouTubeQueue(
+                                                            WatchEndpoint(videoId = item.playlist.id.removePrefix("RDAMVM"), playlistId = item.playlist.id)
                                                         )
-                                                    }
-                                                },
-                                                onSongClick = { song ->
-                                                    if (item.playlist.id == "echo_brain_mix_local") {
-                                                        val index = item.songs.indexOf(song).takeIf { it >= 0 } ?: 0
-                                                        playerConnection.playQueue(
-                                                            ListQueue(
-                                                                title = item.playlist.title,
-                                                                items = item.songs.map { it.toMediaMetadata().toMediaItem() },
-                                                                startIndex = index
-                                                            )
-                                                        )
-                                                    } else {
-                                                        playerConnection.playQueue(
-                                                            YouTubeQueue(
-                                                                song.endpoint ?: WatchEndpoint(videoId = song.id),
-                                                                song.toMediaMetadata()
-                                                            )
-                                                        )
-                                                    }
+                                                    )
                                                 }
-                                            )
-                                        }
+                                            },
+                                            onSongClick = { song ->
+                                                if (item.playlist.id == "echo_brain_mix_local") {
+                                                    val index = item.songs.indexOf(song).takeIf { it >= 0 } ?: 0
+                                                    playerConnection.playQueue(
+                                                        ListQueue(
+                                                            title = item.playlist.title,
+                                                            items = item.songs.map { it.toMediaMetadata().toMediaItem() },
+                                                            startIndex = index
+                                                        )
+                                                    )
+                                                } else {
+                                                    playerConnection.playQueue(
+                                                        YouTubeQueue(
+                                                            song.endpoint ?: WatchEndpoint(videoId = song.id),
+                                                            song.toMediaMetadata()
+                                                        )
+                                                    )
+                                                }
+                                            }
+                                        )
                                     }
                                 }
                             }
@@ -1345,27 +1374,24 @@ fun HomeScreen(
                                 }
 
                                 item(key = "community_playlists_content") {
-                                    LazyRow(
-                                        contentPadding = PaddingValues(horizontal = 16.dp),
-                                        horizontalArrangement = Arrangement.spacedBy(16.dp),
-                                        modifier = Modifier.animateItem()
-                                    ) {
-                                        items(playlists, key = { it.playlist.id }) { item ->
-                                            CommunityPlaylistCard(
-                                                item = item,
-                                                onClick = {
-                                                    navController.navigate("online_playlist/${item.playlist.id.removePrefix("VL")}")
-                                                },
-                                                onSongClick = { song ->
-                                                    playerConnection.playQueue(
-                                                        YouTubeQueue(
-                                                            song.endpoint ?: WatchEndpoint(videoId = song.id),
-                                                            song.toMediaMetadata()
-                                                        )
+                                    CoverFlow3DCarousel(
+                                        items = playlists,
+                                        key = { it.playlist.id }
+                                    ) { item, isSelected ->
+                                        CommunityPlaylistCard(
+                                            item = item,
+                                            onClick = {
+                                                navController.navigate("online_playlist/${item.playlist.id.removePrefix("VL")}")
+                                            },
+                                            onSongClick = { song ->
+                                                playerConnection.playQueue(
+                                                    YouTubeQueue(
+                                                        song.endpoint ?: WatchEndpoint(videoId = song.id),
+                                                        song.toMediaMetadata()
                                                     )
-                                                }
-                                            )
-                                        }
+                                                )
+                                            }
+                                        )
                                     }
                                 }
                             }

@@ -2,6 +2,7 @@
 
 package zyra.echo.music.ui.component
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -97,11 +98,11 @@ fun AnimatedBottomSheet(
 
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
-        modifier = modifier,
+        modifier = modifier.border(1.dp, Color.White.copy(alpha = 0.25f), shape),
         sheetState = sheetState,
         sheetMaxWidth = sheetMaxWidth,
         shape = shape,
-        containerColor = containerColor,
+        containerColor = if (containerColor == BottomSheetDefaults.ContainerColor) Color(0xFF221C3A).copy(alpha = 0.88f) else containerColor,
         contentColor = contentColor,
         tonalElevation = tonalElevation,
         scrimColor = scrimColor,

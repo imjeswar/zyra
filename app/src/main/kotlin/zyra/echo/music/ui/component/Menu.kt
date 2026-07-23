@@ -3,6 +3,7 @@
 package zyra.echo.music.ui.component
 
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -55,12 +56,13 @@ fun Material3MenuGroup(
                 modifier = Modifier
                     .fillMaxWidth()
                     .animateContentSize()
+                    .border(1.dp, Color.White.copy(alpha = 0.22f), shape)
                     .let { mod ->
                         if (item.onClick != null) mod.clickable(onClick = item.onClick) else mod
                     },
                 shape = shape,
                 colors = item.cardColors ?: CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+                    containerColor = Color.White.copy(alpha = 0.12f)
                 ),
                 elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
             ) {

@@ -32,6 +32,7 @@ import zyra.echo.music.utils.CrashHandler
 import zyra.echo.music.utils.cipher.CipherDeobfuscator
 import zyra.echo.music.utils.dataStore
 import zyra.echo.music.utils.reportException
+import zyra.echo.music.listentogether.ListenTogetherServers
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -75,9 +76,10 @@ class App : Application(), SingletonImageLoader.Factory {
         }
 
         
-        applicationScope.launch {
+        applicationScope.launch(Dispatchers.IO) {
             initializeSettings()
             observeSettingsChanges()
+            ListenTogetherServers.wakeUpServers()
         }
     }
 

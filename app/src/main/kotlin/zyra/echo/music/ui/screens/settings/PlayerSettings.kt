@@ -256,9 +256,9 @@ highlightKey: String? = null) {
             values = AudioQuality.values().filter { zyra.echo.music.constants.LOSSLESS_ENABLED || it != AudioQuality.LOSSLESS },
             valueText = {
                 when (it) {
-                    AudioQuality.OPUS -> "Opus"
-                    AudioQuality.SAAVN -> "Saavn (320kbps)"
-                    AudioQuality.LOSSLESS -> "Qobuz (Lossless)"
+                    AudioQuality.OPUS -> "Data Saver (Opus / Compressed)"
+                    AudioQuality.SAAVN -> "High (320kbps)"
+                    AudioQuality.LOSSLESS -> "Lossless (Qobuz Hi-Res FLAC)"
                 }
             }
         )
@@ -276,9 +276,9 @@ highlightKey: String? = null) {
             values = zyra.echo.music.constants.DownloadQuality.values().filter { zyra.echo.music.constants.LOSSLESS_ENABLED || it != zyra.echo.music.constants.DownloadQuality.LOSSLESS },
             valueText = {
                 when (it) {
-                    zyra.echo.music.constants.DownloadQuality.YOUTUBE -> "YouTube Music (AAC/Default)"
-                    zyra.echo.music.constants.DownloadQuality.SAAVN -> "Saavn (320kbps)"
-                    zyra.echo.music.constants.DownloadQuality.LOSSLESS -> "Qobuz (Lossless)"
+                    zyra.echo.music.constants.DownloadQuality.YOUTUBE -> "Data Saver / Default (YouTube AAC)"
+                    zyra.echo.music.constants.DownloadQuality.SAAVN -> "High Quality (320kbps)"
+                    zyra.echo.music.constants.DownloadQuality.LOSSLESS -> "Lossless (Qobuz Hi-Res FLAC)"
                 }
             }
         )
@@ -381,9 +381,9 @@ highlightKey: String? = null) {
                     description = {
                         Text(
                             when (audioQuality) {
-                                AudioQuality.OPUS -> "Opus"
-                                AudioQuality.SAAVN -> "Saavn (320kbps)"
-                                AudioQuality.LOSSLESS -> "Qobuz (Lossless)"
+                                AudioQuality.OPUS -> "Data Saver (Opus / Compressed)"
+                                AudioQuality.SAAVN -> "High (320kbps)"
+                                AudioQuality.LOSSLESS -> "Lossless (Qobuz Hi-Res FLAC)"
                             }
                         )
                     },
@@ -419,9 +419,9 @@ highlightKey: String? = null) {
                     description = {
                         Text(
                             when (downloadQuality) {
-                                zyra.echo.music.constants.DownloadQuality.YOUTUBE -> "YouTube Music (AAC/Default)"
-                                zyra.echo.music.constants.DownloadQuality.SAAVN -> "Saavn (320kbps)"
-                                zyra.echo.music.constants.DownloadQuality.LOSSLESS -> "Qobuz (Lossless)"
+                                zyra.echo.music.constants.DownloadQuality.YOUTUBE -> "Data Saver / Default (YouTube AAC)"
+                                zyra.echo.music.constants.DownloadQuality.SAAVN -> "High Quality (320kbps)"
+                                zyra.echo.music.constants.DownloadQuality.LOSSLESS -> "Lossless (Qobuz Hi-Res FLAC)"
                             }
                         )
                     },

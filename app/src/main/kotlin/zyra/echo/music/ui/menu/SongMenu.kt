@@ -115,7 +115,8 @@ fun SongMenu(
     val playerConnection = LocalPlayerConnection.current ?: return
     val songState = database.song(originalSong.id).collectAsState(initial = originalSong)
     val song = songState.value ?: originalSong
-    val download by LocalDownloadUtil.current.getDownload(originalSong.id)
+    val downloadUtil = LocalDownloadUtil.current
+    val download by downloadUtil.getDownload(originalSong.id)
         .collectAsState(initial = null)
     val coroutineScope = rememberCoroutineScope()
     val syncUtils = LocalSyncUtils.current
@@ -325,6 +326,9 @@ fun SongMenu(
                         update(s)
                     }
                     syncUtils.likeSong(s)
+                    if (s.liked) {
+                        downloadUtil.autoDownloadLikedSong(context, s.id, s.title)
+                    }
                 },
             ) {
                 Icon(

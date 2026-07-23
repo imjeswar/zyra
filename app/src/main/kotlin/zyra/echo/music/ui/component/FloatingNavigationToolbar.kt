@@ -123,7 +123,10 @@ fun FloatingNavigationToolbar(
                         settingsContentDescription = settingsContentDescription,
                     )
                 },
-                modifier = Modifier.widthIn(max = 480.dp),
+                modifier = Modifier
+                    .widthIn(max = 480.dp)
+                    .clip(CircleShape)
+                    .border(1.dp, Color.White.copy(alpha = 0.2f), CircleShape),
                 colors = toolbarColors,
                 scrollBehavior = scrollBehavior,
                 animationSpec = FloatingToolbarDefaults.animationSpec(),
@@ -149,7 +152,10 @@ fun FloatingNavigationToolbar(
                         contentDescription = fabContentDescription,
                     )
                 },
-                modifier = Modifier.widthIn(max = 480.dp),
+                modifier = Modifier
+                    .widthIn(max = 480.dp)
+                    .clip(CircleShape)
+                    .border(1.dp, Color.White.copy(alpha = 0.2f), CircleShape),
                 colors = toolbarColors,
                 scrollBehavior = scrollBehavior,
                 animationSpec = FloatingToolbarDefaults.animationSpec(),
@@ -167,7 +173,10 @@ fun FloatingNavigationToolbar(
         } else {
             HorizontalFloatingToolbar(
                 expanded = true,
-                modifier = Modifier.widthIn(max = 420.dp),
+                modifier = Modifier
+                    .widthIn(max = 420.dp)
+                    .clip(CircleShape)
+                    .border(1.dp, Color.White.copy(alpha = 0.2f), CircleShape),
                 colors = toolbarColors,
                 scrollBehavior = scrollBehavior,
             ) {
@@ -229,9 +238,15 @@ private fun ToolbarItemsContainer(
                         .offset(x = slidingPillOffset)
                         .width(slidingPillWidth)
                         .fillMaxHeight()
+                        .clip(CircleShape)
                         .background(
                             color = floatingToolbarSelectedItemContainerColor(pureBlack),
-                            shape = RoundedCornerShape(24.dp)
+                            shape = CircleShape
+                        )
+                        .border(
+                            width = 1.dp,
+                            color = Color.White.copy(alpha = 0.25f),
+                            shape = CircleShape
                         )
                 )
             }
@@ -511,15 +526,15 @@ private fun FloatingNavigationToolbarItem(
 @Composable
 private fun floatingToolbarContainerColor(pureBlack: Boolean): Color {
     return if (pureBlack) {
-        Color.Black
+        Color(0x990A0E14)
     } else {
-        MaterialTheme.colorScheme.surfaceContainer
+        MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.65f)
     }
 }
 
 @Composable
 private fun floatingToolbarFabContainerColor(pureBlack: Boolean): Color {
-    return MaterialTheme.colorScheme.primaryContainer
+    return MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.85f)
 }
 
 @Composable
@@ -529,18 +544,18 @@ private fun floatingToolbarFabContentColor(pureBlack: Boolean): Color {
 
 @Composable
 private fun floatingToolbarSelectedItemContainerColor(pureBlack: Boolean): Color {
-    return MaterialTheme.colorScheme.secondaryContainer
+    return Color.White.copy(alpha = 0.18f)
 }
 
 @Composable
 private fun floatingToolbarSelectedItemContentColor(pureBlack: Boolean): Color {
-    return MaterialTheme.colorScheme.onSecondaryContainer
+    return Color.White
 }
 
 
 @Composable
 private fun floatingToolbarItemContentColor(pureBlack: Boolean): Color {
-    return MaterialTheme.colorScheme.onSurfaceVariant
+    return Color.White.copy(alpha = 0.55f)
 }
 
 @Composable

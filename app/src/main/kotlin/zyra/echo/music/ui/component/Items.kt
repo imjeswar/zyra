@@ -57,6 +57,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
@@ -150,20 +151,27 @@ inline fun ListItem(
     horizontalPadding: Dp = 16.dp,
     color: Color = MaterialTheme.colorScheme.surfaceContainer,
 ) {
+    val glassShape = if (shape == RectangleShape) RoundedCornerShape(18.dp) else shape
+    val glassBackground = when {
+        isActive -> Brush.verticalGradient(listOf(Color.White.copy(alpha = 0.22f), Color.White.copy(alpha = 0.10f)))
+        isSelected == true && drawHighlight -> Brush.verticalGradient(listOf(Color.White.copy(alpha = 0.28f), Color.White.copy(alpha = 0.14f)))
+        color != MaterialTheme.colorScheme.surfaceContainer && color != Color.Transparent -> Brush.verticalGradient(listOf(color.copy(alpha = 0.18f), color.copy(alpha = 0.06f)))
+        else -> Brush.verticalGradient(listOf(Color.White.copy(alpha = 0.12f), Color.White.copy(alpha = 0.04f)))
+    }
+    val glassBorderColor = when {
+        isActive || isSelected == true -> Color.White.copy(alpha = 0.35f)
+        else -> Color.White.copy(alpha = 0.16f)
+    }
+
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
-            .padding(vertical = 2.dp)
+            .padding(vertical = 3.dp)
             .height(ListItemHeight)
             .padding(horizontal = horizontalPadding)
-            .clip(shape)
-            .background(
-                color = when {
-                    isActive -> MaterialTheme.colorScheme.secondaryContainer
-                    isSelected == true && drawHighlight -> MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)
-                    else -> color
-                }
-            )
+            .clip(glassShape)
+            .background(glassBackground)
+            .border(1.dp, glassBorderColor, glassShape)
     ) {
         Box(
             modifier = Modifier.padding(start = 12.dp, top = 6.dp, end = 6.dp, bottom = 6.dp),

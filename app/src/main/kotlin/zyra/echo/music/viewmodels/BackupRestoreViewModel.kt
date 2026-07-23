@@ -131,7 +131,7 @@ class BackupRestoreViewModel @Inject constructor(
                                 }
                                 
                                 try {
-                                    val dbPath = database.openHelper.writableDatabase.path
+                                    val dbPath = database.openHelper.writableDatabase.path ?: return@withContext
                                     database.checkpoint()
                                     database.close()
                                     Timber.tag("RESTORE").i("Overwriting DB at path: $dbPath")
@@ -201,8 +201,40 @@ class BackupRestoreViewModel @Inject constructor(
                     val rowsToPreviewRaw = linesSeq.take(6).toList()
                     val previewRows = rowsToPreviewRaw.map { parseCsvLine(it) }
                     val hasHeader = rowsToPreviewRaw.isNotEmpty() && rowsToPreviewRaw[0].contains(",")
+
+                    var artistCol = 0
+                    var titleCol = if (previewRows.firstOrNull()?.size ?: 0 > 1) 1 else 0
+                    var urlCol = -1
+
+                    if (hasHeader && previewRows.isNotEmpty()) {
+                        val headerRow = previewRows[0]
+
+                        val detectedTitle = headerRow.indexOfFirst { col ->
+                            val lower = col.lowercase().trim()
+                            lower == "track name" || lower == "title" || lower == "song title" || lower == "track" || lower == "song"
+                        }
+                        if (detectedTitle >= 0) titleCol = detectedTitle
+
+                        val detectedArtist = headerRow.indexOfFirst { col ->
+                            val lower = col.lowercase().trim()
+                            lower == "artist name(s)" || lower == "artist name" || lower == "artist" || lower == "artists"
+                        }
+                        if (detectedArtist >= 0) artistCol = detectedArtist
+
+                        val detectedUrl = headerRow.indexOfFirst { col ->
+                            val lower = col.lowercase().trim()
+                            lower.contains("url") || lower.contains("uri") || lower.contains("link")
+                        }
+                        if (detectedUrl >= 0 && detectedUrl != detectedTitle && detectedUrl != detectedArtist) {
+                            urlCol = detectedUrl
+                        }
+                    }
+
                     csvState = CsvImportState(
                         previewRows = previewRows,
+                        artistColumnIndex = artistCol,
+                        titleColumnIndex = titleCol,
+                        urlColumnIndex = urlCol,
                         hasHeader = hasHeader,
                     )
                 }

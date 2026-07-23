@@ -127,9 +127,9 @@ highlightKey: String? = null) {
     val scope = rememberCoroutineScope()
 
     
-    val (appLanguage, onAppLanguageChange) = rememberPreference(key = AppLanguageKey, defaultValue = SYSTEM_DEFAULT)
+    val (appLanguage, onAppLanguageChange) = rememberPreference(key = AppLanguageKey, defaultValue = "en")
 
-    val (contentLanguage, onContentLanguageChange) = rememberPreference(key = ContentLanguageKey, defaultValue = "system")
+    val (contentLanguage, onContentLanguageChange) = rememberPreference(key = ContentLanguageKey, defaultValue = "en")
     val (contentCountry, onContentCountryChange) = rememberPreference(key = ContentCountryKey, defaultValue = "system")
     val (suggestionRegion, onSuggestionRegionChange) = rememberPreference(key = SuggestionRegionKey, defaultValue = "system")
     val (hideExplicit, onHideExplicitChange) = rememberPreference(key = HideExplicitKey, defaultValue = false)
@@ -171,131 +171,8 @@ highlightKey: String? = null) {
 
     var showPlaybackLogsDialog by rememberSaveable { mutableStateOf(false) }
     var showSuggestionSheet by rememberSaveable { mutableStateOf(false) }
+    var showProxyConfigurationDialog by rememberSaveable { mutableStateOf(false) }
     val playbackLogs by PlaybackLogManager.logs.collectAsState()
-
-    var showProxyConfigurationDialog by rememberSaveable {
-        mutableStateOf(false)
-    }
-
-    if (showProxyConfigurationDialog) {
-        var expandedDropdown by remember { mutableStateOf(false) }
-
-        var tempProxyUrl by rememberSaveable { mutableStateOf(proxyUrl) }
-        var tempProxyUsername by rememberSaveable { mutableStateOf(proxyUsername) }
-        var tempProxyPassword by rememberSaveable { mutableStateOf(proxyPassword) }
-        var authEnabled by rememberSaveable { mutableStateOf(proxyUsername.isNotBlank() || proxyPassword.isNotBlank()) }
-
-        AlertDialog(
-            onDismissRequest = { showProxyConfigurationDialog = false },
-            title = {
-                Text(stringResource(R.string.config_proxy))
-            },
-            text = {
-                val dialogScrollState = androidx.compose.foundation.rememberScrollState()
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .verticalScroll(dialogScrollState),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    ExposedDropdownMenuBox(
-                        expanded = expandedDropdown,
-                        onExpandedChange = { expandedDropdown = !expandedDropdown },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        OutlinedTextField(
-                            value = proxyType.name,
-                            onValueChange = {},
-                            readOnly = true,
-                            label = { Text(stringResource(R.string.proxy_type)) },
-                            trailingIcon = {
-                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedDropdown)
-                            },
-                            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
-                            modifier = Modifier
-                                .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
-                                .fillMaxWidth()
-                        )
-                        ExposedDropdownMenu(
-                            expanded = expandedDropdown,
-                            onDismissRequest = { expandedDropdown = false }
-                        ) {
-                            listOf(Proxy.Type.HTTP, Proxy.Type.SOCKS).forEach { type ->
-                                DropdownMenuItem(
-                                    text = { Text(type.name) },
-                                    onClick = {
-                                        onProxyTypeChange(type)
-                                        expandedDropdown = false
-                                    }
-                                )
-                            }
-                        }
-                    }
-
-                    OutlinedTextField(
-                        value = tempProxyUrl,
-                        onValueChange = { tempProxyUrl = it },
-                        label = { Text(stringResource(R.string.proxy_url)) },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(stringResource(R.string.enable_authentication))
-                        Switch(
-                            checked = authEnabled,
-                            onCheckedChange = {
-                                authEnabled = it
-                                if (!it) {
-                                    tempProxyUsername = ""
-                                    tempProxyPassword = ""
-                                }
-                            }
-                        )
-                    }
-
-                    AnimatedVisibility(visible = authEnabled) {
-                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            OutlinedTextField(
-                                value = tempProxyUsername,
-                                onValueChange = { tempProxyUsername = it },
-                                label = { Text(stringResource(R.string.proxy_username)) },
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                            OutlinedTextField(
-                                value = tempProxyPassword,
-                                onValueChange = { tempProxyPassword = it },
-                                label = { Text(stringResource(R.string.proxy_password)) },
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                        }
-                    }
-                }
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        onProxyUrlChange(tempProxyUrl)
-                        onProxyUsernameChange(if (authEnabled) tempProxyUsername else "")
-                        onProxyPasswordChange(if (authEnabled) tempProxyPassword else "")
-                        showProxyConfigurationDialog = false
-                    }
-                ) {
-                    Text(stringResource(R.string.save))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = {
-                    showProxyConfigurationDialog = false
-                }) {
-                    Text(stringResource(R.string.cancel))
-                }
-            }
-        )
-    }
 
     var showContentLanguageDialog by rememberSaveable {
         mutableStateOf(false)
@@ -611,39 +488,6 @@ highlightKey: String? = null) {
         Material3SettingsGroup(scrollState = scrollState, 
             title = stringResource(R.string.general),
             items = listOf(
-                Material3SettingsItem(
-    isHighlighted = (highlightKey == stringResource(R.string.content_language)),
-                    icon = painterResource(R.drawable.language),
-                    title = { Text(stringResource(R.string.content_language)) },
-                    description = {
-                        Text(
-                            LanguageCodeToName.getOrElse(contentLanguage) { stringResource(R.string.system_default) }
-                        )
-                    },
-                    onClick = { showContentLanguageDialog = true }
-                ),
-                Material3SettingsItem(
-    isHighlighted = (highlightKey == stringResource(R.string.content_country)),
-                    icon = painterResource(R.drawable.location_on),
-                    title = { Text(stringResource(R.string.content_country)) },
-                    description = {
-                        Text(
-                            CountryCodeToName.getOrElse(contentCountry) { stringResource(R.string.system_default) }
-                        )
-                    },
-                    onClick = { showContentCountryDialog = true }
-                ),
-                Material3SettingsItem(
-    isHighlighted = (highlightKey == "Suggestions Region"),
-                    icon = painterResource(R.drawable.globe_location_pin),
-                    title = { Text("Suggestions Region") },
-                    description = {
-                        Text(
-                            SuggestionRegionSlugToName.getOrElse(suggestionRegion) { "Global Charts" }
-                        )
-                    },
-                    onClick = { showSuggestionSheet = true }
-                ),
                 Material3SettingsItem(
     isHighlighted = (highlightKey == stringResource(R.string.hide_explicit)),
                     icon = painterResource(R.drawable.explicit),
@@ -1196,13 +1040,6 @@ highlightKey: String? = null) {
         Material3SettingsGroup(scrollState = scrollState, 
             title = stringResource(R.string.logs_heading),
             items = listOf(
-                Material3SettingsItem(
-    isHighlighted = (highlightKey == stringResource(R.string.playback_logs)),
-                    icon = painterResource(R.drawable.bug_report),
-                    title = { Text(stringResource(R.string.playback_logs)) },
-                    description = { Text(stringResource(R.string.playback_logs_desc)) },
-                    onClick = { showPlaybackLogsDialog = true }
-                ),
                 Material3SettingsItem(
     isHighlighted = (highlightKey == stringResource(R.string.service_uptime)),
                     icon = painterResource(R.drawable.sync),

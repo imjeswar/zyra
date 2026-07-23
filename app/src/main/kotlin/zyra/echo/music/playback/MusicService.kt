@@ -922,7 +922,7 @@ class MusicService :
                     setOffloadEnabled(if (crossfade) false else offload)
                     skipSilenceEnabled = dataStore.get(SkipSilenceKey, false)
                 }
-                addAnalyticsListener(PlaybackStatsListener(false, this@MusicService))
+                addAnalyticsListener(SafePlaybackStatsListener(false, this@MusicService))
 
                 
             }
@@ -3421,6 +3421,42 @@ class MusicService :
                     }
                 }
             }
+        }
+    }
+}
+
+class SafePlaybackStatsListener(
+    keepHistory: Boolean,
+    callback: PlaybackStatsListener.Callback?
+) : AnalyticsListener {
+    private val delegate = PlaybackStatsListener(keepHistory, callback)
+
+    override fun onEvents(player: Player, events: AnalyticsListener.Events) {
+        try {
+            delegate.onEvents(player, events)
+        } catch (e: Throwable) {
+            timber.log.Timber.tag("MusicService").w(e, "Suppressed PlaybackStatsListener exception")
+        }
+    }
+
+    override fun onPositionDiscontinuity(
+        eventTime: AnalyticsListener.EventTime,
+        oldPosition: Player.PositionInfo,
+        newPosition: Player.PositionInfo,
+        reason: Int
+    ) {
+        try {
+            delegate.onPositionDiscontinuity(eventTime, oldPosition, newPosition, reason)
+        } catch (e: Throwable) {
+            timber.log.Timber.tag("MusicService").w(e, "Suppressed PlaybackStatsListener exception")
+        }
+    }
+
+    override fun onPlaybackStateChanged(eventTime: AnalyticsListener.EventTime, state: Int) {
+        try {
+            delegate.onPlaybackStateChanged(eventTime, state)
+        } catch (e: Throwable) {
+            timber.log.Timber.tag("MusicService").w(e, "Suppressed PlaybackStatsListener exception")
         }
     }
 }

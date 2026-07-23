@@ -43,6 +43,7 @@ import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
@@ -229,6 +230,45 @@ constructor(
     }
 
     fun getDownload(songId: String): Flow<Download?> = downloads.map { it[songId] }
+
+    fun downloadSong(context: Context, songId: String, title: String? = null) {
+        try {
+            val downloadRequest = androidx.media3.exoplayer.offline.DownloadRequest.Builder(songId, songId.toUri())
+                .setData(title?.toByteArray(Charsets.UTF_8))
+                .build()
+            androidx.media3.exoplayer.offline.DownloadService.sendAddDownload(
+                context,
+                ExoDownloadService::class.java,
+                downloadRequest,
+                false
+            )
+        } catch (e: Exception) {
+            timber.log.Timber.e(e, "DownloadUtil: Failed to send download request for $songId")
+        }
+    }
+
+    fun autoDownloadLikedSong(context: Context, songId: String, title: String? = null) {
+        val currentDownload = downloads.value[songId]
+        if (currentDownload == null || currentDownload.state != Download.STATE_COMPLETED) {
+            downloadSong(context, songId, title)
+        }
+    }
+
+    fun downloadTopPlayedSongs(context: Context, limit: Int = 20) {
+        scope.launch {
+            try {
+                database.topSongs(limit).first().forEach { songEntity ->
+                    val songId = songEntity.song.id
+                    val currentDownload = downloads.value[songId]
+                    if (currentDownload == null || currentDownload.state != Download.STATE_COMPLETED) {
+                        downloadSong(context, songId, songEntity.song.title)
+                    }
+                }
+            } catch (e: Exception) {
+                timber.log.Timber.e(e, "DownloadUtil: Failed to auto-download top played songs")
+            }
+        }
+    }
 
     fun release() {
         scope.cancel()
