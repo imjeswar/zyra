@@ -30,8 +30,8 @@ sealed class Screens(
 
     object ListenTogether : Screens(
         titleId = R.string.together,
-        iconIdInactive = R.drawable.group_outlined,
-        iconIdActive = R.drawable.group_filled,
+        iconIdInactive = R.drawable.listen_together_3d,
+        iconIdActive = R.drawable.listen_together_3d,
         route = "listen_together"
     )
 
