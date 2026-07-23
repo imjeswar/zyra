@@ -263,6 +263,12 @@ highlightKey: String? = null) {
                                 AppUpdater.checkForUpdate().onSuccess { release ->
                                     if (release == null) {
                                         Toast.makeText(context, R.string.latest_version_installed, Toast.LENGTH_SHORT).show()
+                                    } else {
+                                        Toast.makeText(context, "New update ${release.versionName} found! Starting download...", Toast.LENGTH_LONG).show()
+                                        AppUpdater.downloadAndInstallApk(context, release.downloadUrl) { progress ->
+                                        }.onFailure { err ->
+                                            Toast.makeText(context, "Download failed: ${err.message}", Toast.LENGTH_SHORT).show()
+                                        }
                                     }
                                 }.onFailure {
                                     Toast.makeText(context, "Failed to check for updates", Toast.LENGTH_SHORT).show()
