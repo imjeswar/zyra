@@ -100,7 +100,7 @@ fun FloatingNavigationToolbar(
     val toolbarColors = FloatingToolbarDefaults.standardFloatingToolbarColors(
         toolbarContainerColor = toolbarContainerColor,
     )
-    val hasOverflowMenu = (onShuffleClick != null && shuffleIconRes != null) || onMusicRecognitionClick != null
+    val hasOverflowMenu = false
     val hasFabAction = onFabClick != null && fabIconRes != null
 
     BoxWithConstraints(
