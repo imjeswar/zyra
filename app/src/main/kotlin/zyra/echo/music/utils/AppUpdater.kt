@@ -210,7 +210,34 @@ object AppUpdater {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
 
-            context.startActivity(installIntent)
+            try {
+                context.startActivity(installIntent)
+            } catch (e: SecurityException) {
+                Timber.tag("AppUpdater").e(e, "SecurityException launching package installer")
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    try {
+                        val manageIntent = Intent(
+                            Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
+                            Uri.parse("package:${context.packageName}")
+                        ).apply {
+                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        }
+                        context.startActivity(manageIntent)
+                    } catch (_: Exception) {
+                        try {
+                            val settingsIntent = Intent(Settings.ACTION_SECURITY_SETTINGS).apply {
+                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            }
+                            context.startActivity(settingsIntent)
+                        } catch (_: Exception) {}
+                    }
+                }
+                Toast.makeText(
+                    context,
+                    "Please allow 'Install unknown apps' for Zyra and tap Update again",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
         } catch (e: Exception) {
             Timber.tag("AppUpdater").e(e, "Failed to launch package installer")
             Toast.makeText(context, "Failed to launch installer: ${e.message}", Toast.LENGTH_LONG).show()
