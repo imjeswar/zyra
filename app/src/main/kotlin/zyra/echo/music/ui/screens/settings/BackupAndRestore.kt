@@ -30,6 +30,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -101,6 +102,7 @@ fun BackupAndRestore(
     var pendingCsvUri by remember { mutableStateOf<android.net.Uri?>(null) }
 
     val context = LocalContext.current
+    val uriHandler = LocalUriHandler.current
     val coroutineScope = rememberCoroutineScope()
 
     val backupLauncher =
@@ -218,6 +220,14 @@ fun BackupAndRestore(
                                 icon = painterResource(R.drawable.playlist_add),
                                 onClick = {
                                     importPlaylistFromCsv.launch(arrayOf("text/csv", "text/comma-separated-values", "application/csv", "text/plain"))
+                                }
+                            ),
+                            Material3SettingsItem(
+                                title = { Text("Exportify (Spotify Playlist Exporter)") },
+                                description = { Text("Export Spotify playlists to CSV:\n1. Tap here to open Exportify (exportify.net)\n2. Log in to Spotify & click 'Export'\n3. Use 'Import csv Playlist' above to import") },
+                                icon = painterResource(R.drawable.link),
+                                onClick = {
+                                    uriHandler.openUri("https://exportify.net")
                                 }
                             )
                         )
