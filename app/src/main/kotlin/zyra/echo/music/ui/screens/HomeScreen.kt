@@ -487,6 +487,7 @@ fun CommunityPlaylistCard(
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun DailyDiscoverCard(
     dailyDiscover: zyra.echo.music.viewmodels.DailyDiscoverItem,
@@ -494,18 +495,28 @@ fun DailyDiscoverCard(
     navController: NavController,
     modifier: Modifier = Modifier
 ) {
-    val database = LocalDatabase.current
-    val playCount by database.getLifetimePlayCount(dailyDiscover.recommendation.id).collectAsState(initial = 0)
     val menuState = LocalMenuState.current
     val haptic = LocalHapticFeedback.current
 
     val song = dailyDiscover.recommendation as? SongItem
-    val playsString = stringResource(R.string.plays)
+    val artistName = (dailyDiscover.recommendation as? SongItem)?.artists?.joinToString(", ") { it.name }
+        ?: dailyDiscover.recommendation.subtitle ?: ""
+    val titleText = dailyDiscover.recommendation.title
 
     Card(
         modifier = modifier
-            .fillMaxSize()
-            .clip(RoundedCornerShape(28.dp))
+            .width(235.dp)
+            .height(315.dp)
+            .border(
+                width = 1.5.dp,
+                brush = Brush.linearGradient(
+                    colors = listOf(
+                        Color.White.copy(alpha = 0.45f),
+                        Color.White.copy(alpha = 0.12f)
+                    )
+                ),
+                shape = RoundedCornerShape(26.dp)
+            )
             .combinedClickable(
                 onClick = onClick,
                 onLongClick = {
@@ -522,82 +533,70 @@ fun DailyDiscoverCard(
                 }
             ),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            containerColor = Color.White.copy(alpha = 0.12f),
         ),
-        shape = RoundedCornerShape(28.dp)
+        shape = RoundedCornerShape(26.dp)
     ) {
-        BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-            AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(dailyDiscover.recommendation.thumbnail?.resize(1200, 1200))
-                    .crossfade(true)
-                    .build(),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
+        Column(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Box(
                 modifier = Modifier
-                    .fillMaxSize()
-            )
-
-            if (maxWidth > 200.dp) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(
-                            brush = Brush.verticalGradient(
-                                colors = listOf(
-                                    Color.Black.copy(alpha = 0.3f),
-                                    Color.Transparent,
-                                    Color.Black.copy(alpha = 0.6f),
-                                    Color.Black.copy(alpha = 0.9f)
-                                )
-                            )
-                        )
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .padding(8.dp)
+                    .clip(RoundedCornerShape(20.dp))
+            ) {
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(dailyDiscover.recommendation.thumbnail?.resize(1200, 1200))
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
                 )
 
-                Column(
+                Surface(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(24.dp),
-                    verticalArrangement = Arrangement.SpaceBetween
+                        .align(Alignment.BottomEnd)
+                        .padding(8.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    color = Color.Black.copy(alpha = 0.55f),
+                    border = BorderStroke(1.dp, Color.White.copy(alpha = 0.25f))
                 ) {
-                    Column {
-                        Text(
-                            text = dailyDiscover.recommendation.title,
-                            style = MaterialTheme.typography.titleMedium,
-                            color = Color.White
-                        )
-                        Text(
-                            text = buildString {
-                                append((dailyDiscover.recommendation as? SongItem)?.artists?.joinToString(", ") { it.name } ?: "")
-                                if (playCount > 0) {
-                                    append(" • $playCount $playsString")
-                                }
-                            },
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color.White.copy(alpha = 0.7f)
-                        )
-                    }
-
-                    val messages = listOf(
-                        R.string.daily_discover_sounds_like,
-                        R.string.daily_discover_because_you_listen_to,
-                        R.string.daily_discover_similar_to,
-                        R.string.daily_discover_based_on,
-                        R.string.daily_discover_for_fans_of
-                    )
-                    val messageRes = remember(dailyDiscover.seed.id) {
-                        messages[kotlin.math.abs(dailyDiscover.seed.id.hashCode()) % messages.size]
-                    }
-
                     Text(
-                        text = stringResource(messageRes, "${dailyDiscover.seed.title} • ${dailyDiscover.seed.artists.joinToString(", ") { it.name }}"),
-                        style = MaterialTheme.typography.bodySmall,
-                        fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
-                        color = Color.White.copy(alpha = 0.6f),
-                        maxLines = 1,
-                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                        text = "Discover",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color.White.copy(alpha = 0.9f),
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
                     )
                 }
+            }
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 14.dp, vertical = 10.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = artistName.ifEmpty { titleText },
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                    ),
+                    color = Color.White,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = if (artistName.isNotEmpty()) titleText else "",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.White.copy(alpha = 0.72f),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
             }
         }
     }
@@ -1551,7 +1550,6 @@ fun HomeScreen(
                         }
                         HomeSection.DailyDiscover -> {
                             dailyDiscover?.takeIf { it.isNotEmpty() }?.let { discoverList ->
-                                
                                 item(key = "daily_discover_title") {
                                     val title = stringResource(R.string.your_daily_discover)
                                     NavigationTitle(
@@ -1573,23 +1571,29 @@ fun HomeScreen(
                                     )
                                 }
                                 item(key = "daily_discover_content") {
+                                    val amberGlowBrush = Brush.verticalGradient(
+                                        colors = listOf(
+                                            Color(0xFFD47A22).copy(alpha = 0.28f),
+                                            Color(0xFF8D450B).copy(alpha = 0.12f),
+                                            Color.Transparent
+                                        )
+                                    )
+
                                     Box(
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .height(340.dp)
-                                            .padding(horizontal = 16.dp),
+                                            .height(350.dp)
+                                            .background(brush = amberGlowBrush),
                                         contentAlignment = Alignment.Center
                                     ) {
-                                        val carouselState = rememberCarouselState { discoverList.size }
-                                        HorizontalMultiBrowseCarousel(
-                                            state = carouselState,
-                                            preferredItemWidth = 320.dp,
-                                            itemSpacing = 16.dp,
+                                        CoverFlow3DCarousel(
+                                            items = discoverList,
+                                            key = { it.recommendation.id },
                                             modifier = Modifier
                                                 .fillMaxWidth()
-                                                .height(320.dp)
-                                        ) { i ->
-                                            val item = discoverList[i]
+                                                .height(330.dp)
+                                                .animateItem()
+                                        ) { item, isSelected ->
                                             DailyDiscoverCard(
                                                 dailyDiscover = item,
                                                 onClick = {
@@ -1604,8 +1608,7 @@ fun HomeScreen(
                                                         )
                                                     }
                                                 },
-                                                navController = navController,
-                                                modifier = Modifier.maskClip(MaterialTheme.shapes.extraLarge)
+                                                navController = navController
                                             )
                                         }
                                     }
