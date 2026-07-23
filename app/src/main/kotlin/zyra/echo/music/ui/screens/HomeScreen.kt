@@ -795,7 +795,7 @@ fun HomeScreen(
         val (title, subtitle, thumbnailUrl) = when (item) {
             is Song -> Triple(item.title, item.artists.joinToString { it.name }, item.thumbnailUrl)
             is Album -> Triple(item.title, item.artists.joinToString { it.name }, item.thumbnailUrl)
-            is Artist -> Triple(item.name, "Artist", item.thumbnailUrl)
+            is Artist -> Triple(item.title, "${item.songCount} songs", item.thumbnailUrl)
             is Playlist -> Triple(item.playlist.name, "${item.songCount} songs", null)
         }
         val isActive = item.id in listOf(mediaMetadata?.album?.id, mediaMetadata?.id)
