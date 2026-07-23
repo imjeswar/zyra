@@ -27,6 +27,7 @@ import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -63,6 +64,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
@@ -70,6 +72,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -96,94 +99,38 @@ fun FloatingNavigationToolbar(
     isSelected: (Screens) -> Boolean,
     onItemClick: (Screens, Boolean) -> Unit,
 ) {
-    val toolbarContainerColor = floatingToolbarContainerColor(pureBlack = pureBlack)
-    val toolbarColors = FloatingToolbarDefaults.standardFloatingToolbarColors(
-        toolbarContainerColor = toolbarContainerColor,
+    val borderGradient = Brush.linearGradient(
+        colors = listOf(
+            Color(0xFF81D4FA).copy(alpha = 0.55f),
+            Color(0xFFCE93D8).copy(alpha = 0.55f),
+            Color(0xFFBA68C8).copy(alpha = 0.55f),
+            Color(0xFF80CBC4).copy(alpha = 0.55f)
+        )
     )
-    val hasOverflowMenu = false
-    val hasFabAction = onFabClick != null && fabIconRes != null
 
     BoxWithConstraints(
         modifier = modifier.fillMaxWidth(),
         contentAlignment = Alignment.Center,
     ) {
-        val showSelectedLabels = false
-
-        if (hasOverflowMenu) {
-            HorizontalFloatingToolbar(
-                expanded = true,
-                floatingActionButton = {
-                    FloatingToolbarOverflowMenuButton(
-                        pureBlack = pureBlack,
-                        onShuffleClick = onShuffleClick,
-                        shuffleIconRes = shuffleIconRes,
-                        shuffleContentDescription = shuffleContentDescription,
-                        onSettingsClick = onSettingsClick,
-                        settingsIconRes = settingsIconRes,
-                        settingsContentDescription = settingsContentDescription,
-                    )
-                },
-                modifier = Modifier
-                    .widthIn(max = 480.dp)
-                    .clip(CircleShape)
-                    .border(1.dp, Color.White.copy(alpha = 0.2f), CircleShape),
-                colors = toolbarColors,
-                scrollBehavior = scrollBehavior,
-                animationSpec = FloatingToolbarDefaults.animationSpec(),
+        Surface(
+            modifier = Modifier
+                .widthIn(max = 500.dp)
+                .clip(RoundedCornerShape(32.dp))
+                .border(
+                    width = 1.5.dp,
+                    brush = borderGradient,
+                    shape = RoundedCornerShape(32.dp)
+                ),
+            color = if (pureBlack) Color(0xED080C12) else Color(0xD6101622),
+            shadowElevation = 16.dp
+        ) {
+            Box(
+                modifier = Modifier.padding(horizontal = 6.dp, vertical = 6.dp),
+                contentAlignment = Alignment.Center
             ) {
                 ToolbarItemsContainer(
                     items = items,
                     pureBlack = pureBlack,
-                    showSelectedLabels = showSelectedLabels,
-                    onMusicRecognitionClick = onMusicRecognitionClick,
-                    musicRecognitionContentDescription = musicRecognitionContentDescription,
-                    isSelected = isSelected,
-                    onItemClick = onItemClick
-                )
-            }
-        } else if (hasFabAction) {
-            HorizontalFloatingToolbar(
-                expanded = true,
-                floatingActionButton = {
-                    FloatingToolbarFabAction(
-                        pureBlack = pureBlack,
-                        onClick = onFabClick,
-                        iconRes = fabIconRes,
-                        contentDescription = fabContentDescription,
-                    )
-                },
-                modifier = Modifier
-                    .widthIn(max = 480.dp)
-                    .clip(CircleShape)
-                    .border(1.dp, Color.White.copy(alpha = 0.2f), CircleShape),
-                colors = toolbarColors,
-                scrollBehavior = scrollBehavior,
-                animationSpec = FloatingToolbarDefaults.animationSpec(),
-            ) {
-                ToolbarItemsContainer(
-                    items = items,
-                    pureBlack = pureBlack,
-                    showSelectedLabels = showSelectedLabels,
-                    onMusicRecognitionClick = onMusicRecognitionClick,
-                    musicRecognitionContentDescription = musicRecognitionContentDescription,
-                    isSelected = isSelected,
-                    onItemClick = onItemClick
-                )
-            }
-        } else {
-            HorizontalFloatingToolbar(
-                expanded = true,
-                modifier = Modifier
-                    .widthIn(max = 420.dp)
-                    .clip(CircleShape)
-                    .border(1.dp, Color.White.copy(alpha = 0.2f), CircleShape),
-                colors = toolbarColors,
-                scrollBehavior = scrollBehavior,
-            ) {
-                ToolbarItemsContainer(
-                    items = items,
-                    pureBlack = pureBlack,
-                    showSelectedLabels = showSelectedLabels,
                     onMusicRecognitionClick = onMusicRecognitionClick,
                     musicRecognitionContentDescription = musicRecognitionContentDescription,
                     isSelected = isSelected,
@@ -198,7 +145,6 @@ fun FloatingNavigationToolbar(
 private fun ToolbarItemsContainer(
     items: List<Screens>,
     pureBlack: Boolean,
-    showSelectedLabels: Boolean,
     onMusicRecognitionClick: (() -> Unit)?,
     musicRecognitionContentDescription: String,
     isSelected: (Screens) -> Boolean,
@@ -230,6 +176,20 @@ private fun ToolbarItemsContainer(
         label = "pillOffset"
     )
 
+    val glassPillGradient = Brush.verticalGradient(
+        colors = listOf(
+            Color.White.copy(alpha = 0.32f),
+            Color.White.copy(alpha = 0.10f)
+        )
+    )
+
+    val glassPillBorderGradient = Brush.linearGradient(
+        colors = listOf(
+            Color.White.copy(alpha = 0.60f),
+            Color.White.copy(alpha = 0.20f)
+        )
+    )
+
     Box(modifier = Modifier.height(IntrinsicSize.Min)) {
         Box(modifier = Modifier.matchParentSize()) {
             if (targetWidth > 0.dp) {
@@ -238,21 +198,22 @@ private fun ToolbarItemsContainer(
                         .offset(x = slidingPillOffset)
                         .width(slidingPillWidth)
                         .fillMaxHeight()
-                        .clip(CircleShape)
-                        .background(
-                            color = floatingToolbarSelectedItemContainerColor(pureBlack),
-                            shape = CircleShape
-                        )
+                        .clip(RoundedCornerShape(26.dp))
+                        .background(brush = glassPillGradient)
                         .border(
-                            width = 1.dp,
-                            color = Color.White.copy(alpha = 0.25f),
-                            shape = CircleShape
+                            width = 1.5.dp,
+                            brush = glassPillBorderGradient,
+                            shape = RoundedCornerShape(26.dp)
                         )
                 )
             }
         }
 
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            modifier = Modifier.fillMaxWidth()
+        ) {
             items.forEach { screen ->
                 if (screen == Screens.Library && onMusicRecognitionClick != null) {
                     FloatingNavigationToolbarActionItem(
@@ -267,7 +228,6 @@ private fun ToolbarItemsContainer(
                 FloatingNavigationToolbarItem(
                     screen = screen,
                     selected = selected,
-                    showSelectedLabel = showSelectedLabels,
                     pureBlack = pureBlack,
                     onClick = { onItemClick(screen, selected) },
                     modifier = Modifier.onGloballyPositioned { coordinates ->
@@ -401,21 +361,18 @@ private fun FloatingToolbarFabAction(
 private fun FloatingNavigationToolbarItem(
     screen: Screens,
     selected: Boolean,
-    showSelectedLabel: Boolean,
     pureBlack: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val shape = RoundedCornerShape(24.dp)
-    val showLabel = selected && showSelectedLabel
     val transition = updateTransition(targetState = selected, label = "navItem_${screen.route}")
 
     val contentColor by transition.animateColor(
         transitionSpec = { spring(stiffness = Spring.StiffnessMedium) },
         label = "contentColor",
     ) { isSelected ->
-        if (isSelected) floatingToolbarSelectedItemContentColor(pureBlack)
-        else floatingToolbarItemContentColor(pureBlack)
+        if (isSelected) Color.White
+        else Color.White.copy(alpha = 0.65f)
     }
 
     val iconScale by transition.animateFloat(
@@ -426,24 +383,12 @@ private fun FloatingNavigationToolbarItem(
             )
         },
         label = "iconScale",
-    ) { isSelected -> if (isSelected) 1.12f else 1.0f }
-
-    val horizontalPadding by transition.animateDp(
-        transitionSpec = {
-            spring(
-                dampingRatio = Spring.DampingRatioNoBouncy,
-                stiffness = Spring.StiffnessMediumLow,
-            )
-        },
-        label = "horizontalPadding",
-    ) { isSelected ->
-        if (isSelected && showSelectedLabel) 16.dp else 12.dp
-    }
+    ) { isSelected -> if (isSelected) 1.15f else 1.0f }
 
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
     val pressScale by animateFloatAsState(
-        targetValue = if (isPressed) 0.91f else 1f,
+        targetValue = if (isPressed) 0.90f else 1f,
         animationSpec = spring(
             dampingRatio = Spring.DampingRatioMediumBouncy,
             stiffness = Spring.StiffnessMedium,
@@ -451,75 +396,38 @@ private fun FloatingNavigationToolbarItem(
         label = "pressScale",
     )
 
-    Row(
+    Column(
         modifier = modifier
             .scale(pressScale)
-            .clip(shape)
+            .clip(RoundedCornerShape(24.dp))
             .clickable(
                 interactionSource = interactionSource,
                 indication = LocalIndication.current,
                 role = Role.Tab,
                 onClick = onClick,
             )
-            .widthIn(min = 48.dp)
-            .padding(horizontal = horizontalPadding, vertical = 12.dp),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically,
+            .padding(horizontal = 14.dp, vertical = 6.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
-        Crossfade(
-            targetState = selected,
-            animationSpec = spring(
-                dampingRatio = Spring.DampingRatioNoBouncy,
-                stiffness = Spring.StiffnessMediumLow,
+        Icon(
+            painter = painterResource(if (selected) screen.iconIdActive else screen.iconIdInactive),
+            contentDescription = stringResource(screen.titleId),
+            tint = contentColor,
+            modifier = Modifier
+                .size(26.dp)
+                .scale(iconScale)
+        )
+        Spacer(modifier = Modifier.height(3.dp))
+        Text(
+            text = stringResource(screen.titleId),
+            color = contentColor,
+            style = MaterialTheme.typography.labelSmall.copy(
+                fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium
             ),
-            label = "iconCrossfade",
-            modifier = Modifier.scale(iconScale),
-        ) { isSelected ->
-            Icon(
-                painter = painterResource(if (isSelected) screen.iconIdActive else screen.iconIdInactive),
-                contentDescription = stringResource(screen.titleId),
-                tint = contentColor,
-            )
-        }
-
-        AnimatedVisibility(
-            visible = showLabel,
-            enter = fadeIn(
-                spring(
-                    dampingRatio = Spring.DampingRatioNoBouncy,
-                    stiffness = Spring.StiffnessMediumLow,
-                ),
-            ) + expandHorizontally(
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioNoBouncy,
-                    stiffness = Spring.StiffnessMediumLow,
-                ),
-                expandFrom = Alignment.Start,
-            ),
-            exit = fadeOut(
-                spring(
-                    dampingRatio = Spring.DampingRatioNoBouncy,
-                    stiffness = Spring.StiffnessMediumLow,
-                ),
-            ) + shrinkHorizontally(
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioNoBouncy,
-                    stiffness = Spring.StiffnessMediumLow,
-                ),
-                shrinkTowards = Alignment.Start,
-            ),
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Spacer(modifier = Modifier.size(8.dp))
-                Text(
-                    text = stringResource(screen.titleId),
-                    color = contentColor,
-                    style = MaterialTheme.typography.labelLarge,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-        }
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
     }
 }
 
@@ -552,7 +460,6 @@ private fun floatingToolbarSelectedItemContentColor(pureBlack: Boolean): Color {
     return Color.White
 }
 
-
 @Composable
 private fun floatingToolbarItemContentColor(pureBlack: Boolean): Color {
     return Color.White.copy(alpha = 0.55f)
@@ -579,7 +486,7 @@ private fun FloatingNavigationToolbarActionItem(
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
     val pressScale by animateFloatAsState(
-        targetValue = if (isPressed) 0.91f else 1f,
+        targetValue = if (isPressed) 0.90f else 1f,
         animationSpec = spring(
             dampingRatio = Spring.DampingRatioMediumBouncy,
             stiffness = Spring.StiffnessMedium,
@@ -587,7 +494,7 @@ private fun FloatingNavigationToolbarActionItem(
         label = "pressScale",
     )
 
-    Row(
+    Column(
         modifier = modifier
             .scale(pressScale)
             .clip(RoundedCornerShape(24.dp))
@@ -597,15 +504,23 @@ private fun FloatingNavigationToolbarActionItem(
                 role = Role.Button,
                 onClick = onClick,
             )
-            .widthIn(min = 48.dp)
-            .padding(horizontal = 12.dp, vertical = 12.dp),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically,
+            .padding(horizontal = 14.dp, vertical = 6.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
         Icon(
             painter = painterResource(iconRes),
             contentDescription = contentDescription,
-            tint = floatingToolbarItemContentColor(pureBlack),
+            tint = Color.White.copy(alpha = 0.65f),
+            modifier = Modifier.size(26.dp)
+        )
+        Spacer(modifier = Modifier.height(3.dp))
+        Text(
+            text = contentDescription.ifEmpty { "Recognize" },
+            color = Color.White.copy(alpha = 0.65f),
+            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Medium),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
         )
     }
 }
