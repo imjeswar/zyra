@@ -167,14 +167,28 @@ object AppUpdater {
 
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                if (!context.packageManager.canRequestPackageInstalls()) {
-                    val manageIntent = Intent(
-                        Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
-                        Uri.parse("package:${context.packageName}")
-                    ).apply {
-                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                val canInstall = try {
+                    context.packageManager.canRequestPackageInstalls()
+                } catch (e: Exception) {
+                    false
+                }
+                if (!canInstall) {
+                    try {
+                        val manageIntent = Intent(
+                            Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
+                            Uri.parse("package:${context.packageName}")
+                        ).apply {
+                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        }
+                        context.startActivity(manageIntent)
+                    } catch (e: Exception) {
+                        try {
+                            val settingsIntent = Intent(Settings.ACTION_SECURITY_SETTINGS).apply {
+                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            }
+                            context.startActivity(settingsIntent)
+                        } catch (_: Exception) {}
                     }
-                    context.startActivity(manageIntent)
                     Toast.makeText(
                         context,
                         "Please allow 'Install unknown apps' and tap Update again",
