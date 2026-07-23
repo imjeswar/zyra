@@ -1029,7 +1029,7 @@ fun HomeScreen(
                         if (isPinned) {
                             Spacer(modifier = Modifier.width(4.dp))
                             Icon(
-                                painter = painterResource(R.drawable.pin),
+                                painter = painterResource(R.drawable.ic_push_pin),
                                 contentDescription = null,
                                 tint = Color.White.copy(alpha = 0.8f),
                                 modifier = Modifier.size(14.dp)
