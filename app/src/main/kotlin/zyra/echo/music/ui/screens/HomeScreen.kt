@@ -487,7 +487,6 @@ fun CommunityPlaylistCard(
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun DailyDiscoverCard(
     dailyDiscover: zyra.echo.music.viewmodels.DailyDiscoverItem,
