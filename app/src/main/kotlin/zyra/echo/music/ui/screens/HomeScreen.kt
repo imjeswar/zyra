@@ -61,6 +61,7 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.material3.Text
 import androidx.compose.runtime.collectAsState
@@ -498,8 +499,7 @@ fun DailyDiscoverCard(
     val haptic = LocalHapticFeedback.current
 
     val song = dailyDiscover.recommendation as? SongItem
-    val artistName = (dailyDiscover.recommendation as? SongItem)?.artists?.joinToString(", ") { it.name }
-        ?: dailyDiscover.recommendation.subtitle ?: ""
+    val artistName = (dailyDiscover.recommendation as? SongItem)?.artists?.joinToString(", ") { it.name } ?: ""
     val titleText = dailyDiscover.recommendation.title
 
     Card(
