@@ -263,15 +263,13 @@ highlightKey: String? = null) {
                                 AppUpdater.checkForUpdate().onSuccess { release ->
                                     if (release == null) {
                                         Toast.makeText(context, R.string.latest_version_installed, Toast.LENGTH_SHORT).show()
+                                        AppUpdater.openGitHubReleases(context)
                                     } else {
-                                        Toast.makeText(context, "New update ${release.versionName} found! Starting download...", Toast.LENGTH_LONG).show()
-                                        AppUpdater.downloadAndInstallApk(context, release.downloadUrl) { progress ->
-                                        }.onFailure { err ->
-                                            Toast.makeText(context, "Download failed: ${err.message}", Toast.LENGTH_SHORT).show()
-                                        }
+                                        Toast.makeText(context, "Redirecting to GitHub for update ${release.versionName}...", Toast.LENGTH_LONG).show()
+                                        AppUpdater.openGitHubReleases(context, release.downloadUrl.ifEmpty { AppUpdater.GITHUB_RELEASES_PAGE_URL })
                                     }
                                 }.onFailure {
-                                    Toast.makeText(context, "Failed to check for updates", Toast.LENGTH_SHORT).show()
+                                    AppUpdater.openGitHubReleases(context)
                                 }
                             }
                         }

@@ -28,7 +28,20 @@ data class ReleaseInfo(
 )
 
 object AppUpdater {
+    const val GITHUB_RELEASES_PAGE_URL = "https://github.com/imjeswar/zyra/releases/latest"
     private const val GITHUB_LATEST_RELEASE_URL = "https://api.github.com/repos/imjeswar/zyra/releases/latest"
+
+    fun openGitHubReleases(context: Context, url: String = GITHUB_RELEASES_PAGE_URL) {
+        try {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            context.startActivity(intent)
+        } catch (e: Exception) {
+            Timber.tag("AppUpdater").e(e, "Failed to open GitHub releases in browser")
+            Toast.makeText(context, "Could not open browser", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     private val json = Json {
         ignoreUnknownKeys = true

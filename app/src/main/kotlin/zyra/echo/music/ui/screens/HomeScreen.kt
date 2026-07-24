@@ -1570,46 +1570,30 @@ fun HomeScreen(
                                     )
                                 }
                                 item(key = "daily_discover_content") {
-                                    val amberGlowBrush = Brush.verticalGradient(
-                                        colors = listOf(
-                                            Color(0xFFD47A22).copy(alpha = 0.28f),
-                                            Color(0xFF8D450B).copy(alpha = 0.12f),
-                                            Color.Transparent
-                                        )
-                                    )
-
-                                    Box(
+                                    CoverFlow3DCarousel(
+                                        items = discoverList,
+                                        key = { it.recommendation.id },
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .height(350.dp)
-                                            .background(brush = amberGlowBrush),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        CoverFlow3DCarousel(
-                                            items = discoverList,
-                                            key = { it.recommendation.id },
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .height(330.dp)
-                                                .animateItem()
-                                        ) { item, isSelected ->
-                                            DailyDiscoverCard(
-                                                dailyDiscover = item,
-                                                onClick = {
-                                                    val song = item.recommendation as? SongItem
-                                                    val mediaMetadata = song?.toMediaMetadata()
-                                                    if (mediaMetadata != null) {
-                                                        playerConnection.playQueue(
-                                                            YouTubeQueue(
-                                                                song.endpoint ?: WatchEndpoint(videoId = song.id),
-                                                                mediaMetadata
-                                                            )
+                                            .height(330.dp)
+                                            .animateItem()
+                                    ) { item, isSelected ->
+                                        DailyDiscoverCard(
+                                            dailyDiscover = item,
+                                            onClick = {
+                                                val song = item.recommendation as? SongItem
+                                                val mediaMetadata = song?.toMediaMetadata()
+                                                if (mediaMetadata != null) {
+                                                    playerConnection.playQueue(
+                                                        YouTubeQueue(
+                                                            song.endpoint ?: WatchEndpoint(videoId = song.id),
+                                                            mediaMetadata
                                                         )
-                                                    }
-                                                },
-                                                navController = navController
-                                            )
-                                        }
+                                                    )
+                                                }
+                                            },
+                                            navController = navController
+                                        )
                                     }
                                 }
                             }
