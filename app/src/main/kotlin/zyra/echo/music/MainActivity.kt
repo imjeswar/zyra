@@ -514,38 +514,6 @@ class MainActivity : ComponentActivity() {
                 val bottomInset = with(density) { windowsInsets.getBottom(density).toDp() }
                 val bottomInsetDp = WindowInsets.systemBars.asPaddingValues().calculateBottomPadding()
 
-                var releaseInfoState by remember { mutableStateOf<ReleaseInfo?>(null) }
-                var showUpdateDialog by remember { mutableStateOf(false) }
-                var isDownloadingUpdate by remember { mutableStateOf(false) }
-                var updateDownloadProgress by remember { mutableIntStateOf(0) }
-
-                LaunchedEffect(Unit) {
-                    AppUpdater.checkForUpdate().onSuccess { info ->
-                        if (info != null) {
-                            releaseInfoState = info
-                            showUpdateDialog = true
-                        }
-                    }
-                }
-
-                UpdateAvailableDialog(
-                    isVisible = showUpdateDialog,
-                    releaseInfo = releaseInfoState,
-                    isDownloading = isDownloadingUpdate,
-                    downloadProgress = updateDownloadProgress,
-                    onDismiss = { showUpdateDialog = false },
-                    onUpdateConfirm = { url ->
-                        lifecycleScope.launch {
-                            isDownloadingUpdate = true
-                            AppUpdater.downloadAndInstallApk(this@MainActivity, url) { progress ->
-                                updateDownloadProgress = progress
-                            }.onFailure { err ->
-                                isDownloadingUpdate = false
-                                Toast.makeText(this@MainActivity, "Download failed: ${err.message}", Toast.LENGTH_SHORT).show()
-                            }
-                        }
-                    }
-                )
 
                 val navController = rememberNavController()
                 val homeViewModel: HomeViewModel = hiltViewModel()
